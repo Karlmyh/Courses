@@ -1,0 +1,196 @@
+% !Mode:: "TeX:UTF-8"
+
+\documentclass[a4paper,11pt,onecolumn,twoside]{article}
+\usepackage{fancyhdr}
+\usepackage{amsmath,amsfonts,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{verbatim}
+\usepackage{mathptmx}
+\usepackage{appendix}
+\usepackage{booktabs}
+\usepackage[labelfont=bf]{caption}
+\usepackage{indentfirst}
+\usepackage{caption}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{subfigure}
+\usepackage{fontspec}
+\usepackage{listings}
+\usepackage{xeCJK}
+\newtheorem{lemma}{引理}[section]% Please change the following fonts if they are not available.
+\setmainfont{Times New Roman}
+
+\addtolength{\topmargin}{-54pt}
+\setlength{\oddsidemargin}{-0.9cm}
+\setlength{\evensidemargin}{\oddsidemargin}
+\setlength{\textwidth}{17.00cm}
+\setlength{\textheight}{24.50cm}
+
+\renewcommand{\baselinestretch}{1.1}
+\parindent 22pt
+
+\title{\textbf{第一次上机实验报告}}
+\author{
+马宇恒
+\\[2pt]
+{\small \textit{匡亚明学院 171240510}}}
+\date{}
+\fancypagestyle{firststyle}
+{
+   \fancyhf{}
+   \fancyhead[C]{数值计算实验报告}
+   \fancyhead[R]{\thepage}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+
+\fancyhead[LE,RO]{\thepage}
+\fancyhead[CE]{数值计算与实验}
+\fancyhead[RE]{}
+\fancyhead[CO]{}
+\fancyhead[LO]{}
+
+\setlist{nolistsep}
+\captionsetup{font=small}
+
+\newcommand{\supercite}[1]{\textsuperscript{\cite{#1}}}
+\begin{document}
+\maketitle
+\thispagestyle{firststyle}
+\setlength{\oddsidemargin}{ 1cm}
+\setlength{\evensidemargin}{\oddsidemargin}
+\setlength{\textwidth}{15.50cm}
+\vspace{-.8cm}
+
+
+\setcounter{page}{1}
+
+\setlength{\oddsidemargin}{-.5cm}  % 3.17cm - 1 inch
+\setlength{\evensidemargin}{\oddsidemargin}
+\setlength{\textwidth}{17.00cm}
+
+\section{实验目的}
+编程序找出所使用计算机的机器精度、下溢值和上溢值。
+
+\section{理论知识}
+\begin{itemize}
+    \item 机器精度：用$\epsilon_{mach}$来指代，也叫单位舍入误差。它说明了使用特定p, t, L, U的计算机系统表示一个非零实数x的最大可能相对误差，即：$$\left| \frac { f l ( x ) - x } { x } \right| \leq \varepsilon _ { m a c h }$$
+    \item 下溢值：特定p, t, L, U的浮点数系统能表示的最小值。
+    \item 上溢值：特定p, t, L, U的浮点数系统能表示的最大值。
+\end{itemize}
+
+\section{算法}
+\subsection{求机器精度}
+机器精度是由浮点系统尾数域的位数决定的，尾数域为00$\cdots$01，在多数情况下有$$\varepsilon_{mach}=2^{1-t}$$为了便于计算，我们将x设定为1，y设定为$1+\frac{1}{2^{k}}$，不断比较两者的大小。当两者即将一样大时，令fl(x)=y带入计算即得结果。
+\subsection{求下溢值}
+下溢值是由指数域的位数决定的，其指数域为00$\cdots$01，在多数情况下有$$UFL=2^{-(L+1)}$$通过不断的比较$\frac{1}{2^{k}}$和0的大小找到。
+\subsection{求上溢值}
+上溢值是由指数域的位数决定的，其指数域为1$\cdots$11，在多数情况下有$$OFL=2^{U}(1-2^{-t})$$首先找到超过上溢值之前的2的次幂，即$2^{U-1}$，亦即指数域为0.10$\cdots$0的情况。截断方法是通过比较一个数的2倍与4倍是否相等，若达到$2^{U-1}$，则应当相等。而后不断与$2^{U-1-k}, k=1,2\cdots$相加，直至$\sum_{U-1-k}^{U-1}2^{i}$超限。
+\section{程序}
+见附录A。
+\section{结果与分析}
+\subsection{结果}
+运行所示代码，输出结果如下。
+\begin{lstlisting}
+单精度上溢3.40282e+38
+7f7fffff
+单精度下溢1.4013e-45
+1
+单精度机器精度5.96046e-08
+33800000
+双精度上溢1.79769e+308
+1.79769e+308
+双精度下溢4.94066e-324
+4.94066e-324
+双精度机器精度1.11022e-16
+2.22045e-16
+Program ended with exit code: 0
+\end{lstlisting}
+\subsection{分析}
+在单精度的部分，采用了输出十六进制表示的方法进行验证。\par  单精度上溢值的十六进制表示是7f7fffff，转换成二进制并把位数补齐是$$0\overbrace{11111110}^{8}\underbrace{11111111111111111111111}_{23}$$还原左移规范化后即$2^{128}\times(1-2^{-24})$，正是我们所要求取的值。然而其二进制表示与想象的稍有不同，为何不是全部位皆为1时是最大值？通过查找资料得知，其指数位是254，而指数位为255时是为NaN保留的。所以求出的结果正确。\par 单精度下溢值十六进制是1，转换成二进制是$$00000000000000000000000000000001$$结果是$1\times 2^{-23}\times 2^{-126}=2^{-149}$。此处没有使用左移规范化的原因经过查阅资料，是因为在处理较小的量时，计算机会进行非规范化操作，获取更多的小数位。所以，求出的结果是正确的。\par
+单精度机器精度的十六进制表示是33800000，转换成二进制是$$0\underbrace{01100111}_{8}00000000000000000000000$$\par 即$1.0\times 2^{64+32+4+2+1-127}=2^{-24}$。这与t=23的结论相符，所以，求出的结果是正确的。\par
+双精度的部分采用了库函数直接输出数值的方法进行验证。从输出可以看出，上溢值和下溢值求出的结果均正确。而我们所采用的输出机器精度的库函数是“运行编译程序的计算机所能识别的最小非零浮点数”，所以其结果自然是机器精度的二倍。
+\section{结论}
+求得的结果最终为
+\begin{itemize}
+\item 单精度上溢值$3.40282\times10^{38}$
+\item 单精度下溢值$1.4013\times10^{-45}$
+\item 单精度机器精度$5 . 9 6 0 4 6\times10^{-8}$
+\item 双精度上溢值$1.79769\times10^{308}$
+\item 双精度下溢值$4.94066\times10^{-324}$
+\item 双精度机器精度$1 . 1 1 0 2 2\times10^{-16}$
+\end{itemize}
+					
+
+\begin{appendices}
+      \section{代码}
+      \begin{lstlisting}
+#include <iostream>
+#include <math.h>
+#include <string.h>
+using namespace std;
+int main() {
+    float i=0,supof=1,infof=1,mepre=2,temp=0,me=0;
+    while(supof!=2*supof){
+        temp=supof;
+        supof=supof*2;
+        i++;
+    }
+    supof=temp;
+    while((temp/2+supof)*2!=temp/2+supof){
+        supof=temp/2+supof;
+        temp=temp/2;
+    }
+    while(infof/2>0){
+        infof=infof/2;
+        i++;
+    }
+    while((mepre+1)/2!=1){
+        mepre=(mepre+1)/2;
+    }
+    me=(mepre-1)/2;
+    cout<<"单精度"<<"上溢"<<supof<<endl;
+    printf("%x\n", *(int *)&supof);
+    cout<<"单精度"<<"下溢"<<infof<<endl;
+    printf("%x\n", *(int *)&infof);
+    //char a[16]=(char *)&infof;
+    //char *a=(char *)&infof;
+    //for(int i=0;i<16;i++){cout<<a[i];}
+    cout<<"单精度"<<"机器精度"<<me<<endl;
+    printf("%x\n", *(int *)&me);
+    //ofstream outfile("out1.bin",ios::out|ios::binary);
+    //outfile.write((char*)&b,sizeof(float));
+    //
+    double i2=0,supof2=1,infof2=1,mepre2=2,me2=0,temp2=0;
+    while(supof2!=2*supof2){
+        temp2=supof2;
+        supof2=supof2*2;
+        i2++;
+    }
+    supof2=temp2;
+    while((temp2/2+supof2)*2!=temp2/2+supof2){
+        supof2=temp2/2+supof2;
+        temp2=temp2/2;
+    }
+    while(infof2/2>0){
+        infof2=infof2/2;
+        i2++;
+    }
+    while((mepre2+1)/2!=1){
+        mepre2=(mepre2+1)/2;
+    }
+    me2=(mepre2-1)/2;
+    cout<<"双精度"<<"上溢"<<supof2<<endl;
+    双上溢值: cout<<std::numeric_limits<double>::max()<<endl;
+    cout<<"双精度"<<"下溢"<<infof2<<endl;
+    双规约下溢值: cout<<std::numeric_limits<double>::denorm_min()<<endl;
+    cout<<"双精度"<<"机器精度"<<me2<<endl;
+    双机器精度: cout<<std::numeric_limits<double>::epsilon()<<endl;
+    return 0;
+}
+
+
+      \end{lstlisting}
+       \end{appendices}
+\end{document}

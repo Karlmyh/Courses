@@ -1,0 +1,462 @@
+% !Mode:: "TeX:UTF-8"
+
+\documentclass[a4paper,11pt,onecolumn,twoside]{article}
+\usepackage{fancyhdr}
+\usepackage{amsmath,amsfonts,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{verbatim}
+\usepackage{mathptmx}
+\usepackage{booktabs}
+\usepackage[labelfont=bf]{caption}
+\usepackage{indentfirst}
+\usepackage{caption}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{subfigure}
+\usepackage{fontspec}
+\usepackage{appendix}
+\usepackage{listings}
+\usepackage{xeCJK}
+\newtheorem{lemma}{引理}[section]% Please change the following fonts if they are not available.
+\setmainfont{Times New Roman}
+
+\addtolength{\topmargin}{-54pt}
+\setlength{\oddsidemargin}{-0.9cm}
+\setlength{\evensidemargin}{\oddsidemargin}
+\setlength{\textwidth}{17.00cm}
+\setlength{\textheight}{24.50cm}
+
+\renewcommand{\baselinestretch}{1.1}
+\parindent 22pt
+
+\title{\textbf{第四次上机实验报告}}
+\author{
+马宇恒
+\\[2pt]
+{\small \textit{匡亚明学院 171240510}}}
+\date{}
+\fancypagestyle{firststyle}
+{
+   \fancyhf{}
+   \fancyhead[C]{数值计算实验报告}
+   \fancyhead[R]{\thepage}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+
+\fancyhead[LE,RO]{\thepage}
+\fancyhead[CE]{数值计算与实验}
+\fancyhead[RE]{}
+\fancyhead[CO]{}
+\fancyhead[LO]{}
+
+\setlist{nolistsep}
+\captionsetup{font=small}
+
+\newcommand{\supercite}[1]{\textsuperscript{\cite{#1}}}
+\begin{document}
+\maketitle
+\thispagestyle{firststyle}
+\setlength{\oddsidemargin}{ 1cm}
+\setlength{\evensidemargin}{\oddsidemargin}
+\setlength{\textwidth}{15.50cm}
+\vspace{-.8cm}
+
+
+\setcounter{page}{1}
+
+\setlength{\oddsidemargin}{-.5cm}  % 3.17cm - 1 inch
+\setlength{\evensidemargin}{\oddsidemargin}
+\setlength{\textwidth}{17.00cm}
+
+\section{实验目的}
+用Muller方法求多项式$$p(x)=x^{3}-x+5$$的全部根。
+
+\section{任务}
+\subsection{算法}
+采用了两种方法。法一首先定义复数类，借助互联网的帮助，定义了复数类型变量以及其基本运算。之后使用马勒法求得方程的所有实根。之后使用降阶得到消去实根项的近似多项式。而后，通过求根公式得到两个复数根的近似解，并以之为初值使用牛顿法迭代，得到精确解。法二为直接在一个范围内使用马勒法对不同复数初值迭代，结果用牛顿法进行优化。
+\subsection{程序}
+法一见附录A。法二见附录B。
+\subsection{结果与分析}
+\subsubsection{法一}
+运行程序
+\begin{lstlisting}
+-1.90417
+0.95208+ 1.31125i
+0.95208+ -1.31125i
+\end{lstlisting}
+和手工解出的值相近。
+\subsubsection{法二}
+运行程序
+\begin{lstlisting}
+0.95207+ 1.31117i
+0.95207+ -1.31117i
+-1.80959+ -0.00153881i
+0.95208+ 1.31125i
+0.95208+ -1.31125i
+-1.90416+ 2.53983e-11i
+\end{lstlisting}
+可以看到马勒法确实收敛到了结果附近，但是仍需要牛顿法做进一步精确迭代。
+
+\begin{appendices}
+      \section{代码一}
+      \begin{lstlisting}
+#include <iostream>
+#include <string.h>
+#include <math.h>
+using namespace std;
+//////////////////////////////////////////////定义复数类
+class Complex
+{
+public:
+    double _modulus;
+    Complex(double r,double i);
+    Complex();
+    Complex operator+(const Complex &c);
+    Complex operator-(const Complex &c);
+    Complex operator*(const Complex &c);
+    Complex operator/(const Complex &c);
+    friend Complex findroot(const Complex &c);
+    bool operator==(const Complex &c);
+    double mode(Complex z);
+    void print(Complex &c);
+private:
+    double _real;
+    double _image;
+};
+//////////////////////////////////////////////基本运算
+Complex::Complex(double r, double i)
+{
+    _real = r;
+    _image = i;
+    _modulus=sqrt(r*r+i*i);
+}
+
+Complex::Complex(){
+    _real = 0.0;
+    _image = 0.0;
+    _modulus=0.0;
+}
+Complex Complex::operator+(const Complex& c){
+    Complex temp(*this);
+    temp._real = _real + c._real;
+    temp._image = _image + c._image;
+    temp._modulus=sqrt(temp._real*temp._real+temp._image*temp._image);
+    return temp;
+}
+Complex Complex::operator-(const Complex& c){
+    Complex temp(*this);
+    temp._real = _real - c._real;
+    temp._image = _image - c._image;
+    /*if(temp._image)*/
+        temp._modulus=sqrt(temp._real*temp._real+temp._image*temp._image);
+    return temp;
+}
+Complex Complex::operator*(const Complex& c){
+    Complex temp(*this);
+    temp._real = (_real * c._real) - (_image * c._image);
+    temp._image = (_image * c._real) + (_real * c._image);
+        temp._modulus=sqrt(temp._real*temp._real+temp._image*temp._image);
+    return temp;
+}
+Complex Complex::operator/(const Complex& c){
+    Complex temp(*this);
+    temp._real = ((_real * c._real) + (_image * c._image))
+    /((c._real * c._real) + (c._image * c._image));
+    temp._image = ((_image * c._real) - (_real * c._image)) 
+    / ((c._real * c._real) + (c._image * c._image));
+        temp._modulus=sqrt(temp._real*temp._real
+        +temp._image*temp._image);
+    return temp;
+}
+
+bool Complex::operator==(const Complex &c)
+{
+    return(_real == c._real) && (_image == c._image);
+}
+Complex findroot(const Complex& c){
+    Complex temp=c;
+    temp._real=sqrt(c._modulus)*cos(atan(c._image/c._real)/2);
+    temp._image=sqrt(c._modulus)*sin(atan(c._image/c._real)/2);
+    temp._modulus=sqrt(temp._real*temp._real+temp._image*temp._image);
+    return temp;
+}
+void Complex::print(Complex &c)
+{
+    cout << c._real << "+ " << c._image << "i" << endl;
+}
+double mode(Complex z){
+    double t;
+    t= z._modulus;
+    return t;
+}
+//////////////////////////////////////////////题目部分的相关定义
+#define Epsilon 0.000001
+int sign(double x){
+    if(x>0){return 1;}
+    else if(x==0){return 0;}
+    else{return -1;}
+}
+//////////////////////////////////////////////返回值分别为实数
+//////////////////////////////////////////////和复数的函数
+double f(double x){
+    return x*x*x-x+5;
+}
+Complex g(Complex x){
+    Complex z=x*x*x;
+    z=z-x;
+    z=z+Complex(5,0);
+    return z;
+}
+//////////////////////////////////////////////复数的牛顿迭代
+Complex newton(Complex x){
+    Complex x2,x1;
+    x1=Complex(0,0);x2=x;
+    while(mode(x1-x2)>Epsilon){
+        x1=x2;
+        x2=x1-g(x1)/(Complex(3,0)*x1*x1-Complex(1,0));
+        Complex temp=g(x1)/(Complex(3,0)*x1*x1-Complex(1,0));
+    }
+    return x1;
+}
+//////////////////////////////////////////////实数的马勒迭代
+double muller(double x0,double x1,double x2){
+    double p,h,a,b,d,e,sigma1,sigma2,h1=x1-x0,h2=x2-x1,count=0;
+    sigma1=(f(x1)-f(x0))/h1;sigma2=(f(x2)-f(x1))/h2;
+    a=(sigma2-sigma1)/(h1+h2);
+    while(1){
+        b=sigma2+h2*a;
+        d=sqrt(b*b-4*f(x2)*a);
+        if(sign(b-d)*(b-d)<sign(b+d)*(b+d)){e=b+d;}
+        else{e=b-d;}
+        h=-2*f(x2)/e;
+        p=x2+h;
+        if(h*sign(h)<Epsilon)break;
+        count++;if(count>100){return 0;}
+        x0=x1;
+        x1=x2;
+        x2=p;
+        h1=x1-x0;
+        sigma1=(f(x1)-f(x0))/h1;
+        sigma2=(f(x2)-f(x1))/h2;
+        a=(sigma2-sigma1)/(h2+h1);
+    }
+    return p;
+}
+//////////////////////////////////////////////主函数
+int main()
+{
+    double polynomial[4];
+    //////////////////////////////////////////////输入多项式
+    polynomial[0]=1;polynomial[1]=0;polynomial[2]=-1;polynomial[3]=5;
+    int k=1;
+    double results[4];results[0]=0;
+    //////////////////////////////////////////////找到实根，判断是否重复
+    //////////////////////////////////////////////全部保存
+        for(int i=-20;i<100;i++){
+        if(sign(muller(i-1,i,i+1)-results[k-1])*
+           (muller(i-0.1,i,i+0.1)-results[k-1])
+           >10*Epsilon&&muller(i-1,i,i+1)!=0)
+           {results[k]=muller(i-0.1,i,i+0.1);k=k+1;}
+        if(k==4)break;
+    }
+    //////////////////////////////////////////////找到去掉实根之后的多项式
+    double after[3];
+    for(int i=0;i<4;i++){
+        if(results[i]!=0){
+            cout<<results[i]<<endl;
+            after[0]=polynomial[0];
+            for(int j=1;j<3;j++){
+                after[j]=polynomial[j]+after[j-1]*results[i];
+            }
+            break;
+        }
+    }
+    //////////////////////////////////////////////使用求根公式找到复数解近似
+    //////////////////////////////////////////////并用牛顿法迭代
+    Complex z1,z2;
+    if(after[1]*after[1]-4*after[0]*after[2]<0){
+        z1=Complex(-after[1]/after[0]/2,
+        sqrt(-after[1]*after[1]+4*after[0]*after[2])/2/after[0]);
+        z2=Complex(-after[1]/after[0]/2,
+        -sqrt(-after[1]*after[1]+4*after[0]*after[2])/2/after[0]);
+        z1=newton(z1);z2=newton(z2);
+    }
+    //////////////////////////////////////////////输出
+    Complex *c=NULL;
+    c->print(z1);
+    c->print(z2);
+}
+
+      \end{lstlisting}
+ \section{代码二}
+ \begin{lstlisting}
+ //////////////////////////////////////////////前部分与前文相同，不赘述
+ #include <iostream>
+#include <string.h>
+#include <math.h>
+using namespace std;
+class Complex
+{
+public:
+    double _modulus;
+    Complex(double r,double i);
+    Complex();
+    Complex operator+(const Complex &c);
+    Complex operator-(const Complex &c);
+    Complex operator*(const Complex &c);
+    Complex operator/(const Complex &c);
+    friend Complex findroot(const Complex &c);
+    bool operator==(const Complex &c);
+    double mode(Complex z);
+    void print(Complex &c);
+private:
+    double _real;
+    double _image;
+};
+
+Complex::Complex(double r, double i)
+{
+    _real = r;
+    _image = i;
+    _modulus=sqrt(r*r+i*i);
+}
+
+Complex::Complex(){
+    _real = 0.0;
+    _image = 0.0;
+    _modulus=0.0;
+}
+
+//两复数相加
+Complex Complex::operator+(const Complex& c){
+    Complex temp(*this);
+    temp._real = _real + c._real;
+    temp._image = _image + c._image;
+    temp._modulus=sqrt(temp._real*temp._real+temp._image*temp._image);
+    return temp;
+}
+//(a+bi)-(c+di)=(a-c)+(b-d)i
+Complex Complex::operator-(const Complex& c){
+    Complex temp(*this);
+    temp._real = _real - c._real;
+    temp._image = _image - c._image;
+    /*if(temp._image)*/
+        temp._modulus=sqrt(temp._real*temp._real+temp._image*temp._image);
+    return temp;
+}
+//(a+bi)(c+di)=(ac-bd)+(bc+ad)i
+Complex Complex::operator*(const Complex& c){
+    Complex temp(*this);
+    temp._real = (_real * c._real) - (_image * c._image);
+    temp._image = (_image * c._real) + (_real * c._image);
+        temp._modulus=sqrt(temp._real*temp._real+temp._image*temp._image);
+    return temp;
+}
+//(a+bi)/(c+di)=(ac+bd)/(c^2+d^2) +(bc-ad)/(c^2+d^2)i
+Complex Complex::operator/(const Complex& c){
+    Complex temp(*this);
+    temp._real = ((_real * c._real) + (_image * c._image))/
+    ((c._real * c._real) + (c._image * c._image));
+    temp._image = ((_image * c._real) - (_real * c._image)) /
+     ((c._real * c._real) + (c._image * c._image));
+        temp._modulus=sqrt(temp._real*temp._real+
+        temp._image*temp._image);
+    return temp;
+}
+
+bool Complex::operator==(const Complex &c)
+{
+    return(_real == c._real) && (_image == c._image);
+}
+Complex findroot(const Complex& c){
+    Complex temp=c;
+    temp._real=sqrt(c._modulus)*sin(atan(-c._image/c._real)/2);
+    temp._image=sqrt(c._modulus)*cos(atan(c._image/c._real)/2);
+    temp._modulus=sqrt(temp._real*temp._real+temp._image*temp._image);
+    return temp;
+}
+void Complex::print(Complex &c)
+{
+    cout << c._real << "+ " << c._image << "i" << endl;
+}
+double mode(Complex z){
+    double t;
+    t= z._modulus;
+    return t;
+}
+#define Epsilon 0.000000001
+int sign(double x){
+    if(x>0){return 1;}
+    else if(x==0){return 0;}
+    else{return -1;}
+}
+double f(double x){
+    return x*x*x-x+5;
+}
+Complex g(Complex x){
+    Complex z=x*x*x;
+    z=z-x;
+    z=z+Complex(5,0);
+    return z;
+}
+
+Complex newton(Complex x){
+    Complex x2,x1;
+    x1=Complex(0,0);x2=x;
+    while(mode(x1-x2)>Epsilon){
+        x1=x2;
+        x2=x1-g(x1)/(Complex(3,0)*x1*x1-Complex(1,0));
+    }
+    return x1;
+}
+//////////////////////////////////////////////复数的马勒迭代
+ Complex mullercomplex(Complex x0,Complex x1,Complex x2){
+    Complex p,h,a,b,d,e,sigma1,sigma2,h1=x1-x0,h2=x2-x1;
+    int count=0;
+    sigma1=(g(x1)-g(x0))/h1;sigma2=(g(x2)-g(x1))/h2;
+    a=(sigma2-sigma1)/(h1+h2);
+    while(1){
+        b=sigma2+h2*a;
+        d=findroot(b*b-Complex(4,0)*g(x2)*a);
+        if(mode(b-d)<mode(b+d)){e=b+d;}
+        else{e=b-d;}
+        h=Complex(0,0)-Complex(2,0)*g(x2)/e;
+        p=x2+h;
+        if(mode(h)>Epsilon){break;}
+        count++;if(count>5000){return Complex(0,0);}
+        x0=x1;
+        x1=x2;
+        x2=p;
+        h1=x1-x0;
+        sigma1=(g(x1)-g(x0))/h1;
+        sigma2=(g(x2)-g(x1))/h2;
+        a=(sigma2-sigma1)/(h2+h1);
+    }
+    return p;
+}
+//////////////////////////////////////////////在根附近取一些初值输出
+//////////////////////////////////////////////再使用牛顿法输出
+int main(){
+ Complex *c=NULL;
+
+    Complex z1=mullercomplex(Complex(0.9,1.3), 
+    Complex(0.9,1.4), Complex(0.9,1.2));
+    Complex z2=mullercomplex(Complex(0.9,-1.3), 
+    Complex(0.9,-1.4), Complex(0.9,-1.2));
+    Complex z3=mullercomplex(Complex(-1.9,0), 
+    Complex(-2,0.11), Complex(-1.9,-0.1));
+        c->print(z1);
+    c->print(z2);
+    c->print(z3);
+    z1=newton(z1);
+    z2=newton(z2);
+    z3=newton(z3);
+    c->print(z1);
+    c->print(z2);
+    c->print(z3);
+}
+\end{lstlisting}
+ \end{appendices}
+\end{document}

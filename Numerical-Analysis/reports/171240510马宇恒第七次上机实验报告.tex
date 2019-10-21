@@ -1,0 +1,352 @@
+% !Mode:: "TeX:UTF-8"
+
+\documentclass[a4paper,11pt,onecolumn,twoside]{article}
+\usepackage{fancyhdr}
+\usepackage{amsmath,amsfonts,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{verbatim}
+\usepackage{mathptmx}
+\usepackage{booktabs}
+\usepackage[labelfont=bf]{caption}
+\usepackage{indentfirst}
+\usepackage{caption}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{subfigure}
+\usepackage{fontspec}
+\usepackage{appendix}
+\usepackage{listings}
+\usepackage{xeCJK}
+\newtheorem{lemma}{引理}[section]% Please change the following fonts if they are not available.
+\setmainfont{Times New Roman}
+
+\addtolength{\topmargin}{-54pt}
+\setlength{\oddsidemargin}{-0.9cm}
+\setlength{\evensidemargin}{\oddsidemargin}
+\setlength{\textwidth}{17.00cm}
+\setlength{\textheight}{24.50cm}
+
+\renewcommand{\baselinestretch}{1.1}
+\parindent 22pt
+
+\title{\textbf{第七次上机实验报告}}
+\author{
+马宇恒
+\\[2pt]
+{\small \textit{匡亚明学院 171240510}}}
+\date{}
+\fancypagestyle{firststyle}
+{
+   \fancyhf{}
+   \fancyhead[C]{数值计算实验报告}
+   \fancyhead[R]{\thepage}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+
+\fancyhead[LE,RO]{\thepage}
+\fancyhead[CE]{数值计算与实验}
+\fancyhead[RE]{}
+\fancyhead[CO]{}
+\fancyhead[LO]{}
+
+\setlist{nolistsep}
+\captionsetup{font=small}
+
+\newcommand{\supercite}[1]{\textsuperscript{\cite{#1}}}
+\begin{document}
+\maketitle
+\thispagestyle{firststyle}
+\setlength{\oddsidemargin}{ 1cm}
+\setlength{\evensidemargin}{\oddsidemargin}
+\setlength{\textwidth}{15.50cm}
+\vspace{-.8cm}
+
+
+\setcounter{page}{1}
+
+\setlength{\oddsidemargin}{-.5cm}  % 3.17cm - 1 inch
+\setlength{\evensidemargin}{\oddsidemargin}
+\setlength{\textwidth}{17.00cm}
+
+\section{实验目的}
+\subsection{求$\pi$}
+数学上已经证明$$\int _ { 0 } ^ { 1 } \frac { 4 } { 1 + x ^ { 2 } } \mathrm { d } x = \pi.$$成立，所以可以通过数值积分来求圆周率的近似值。
+\begin{itemize}
+\item 分别使用复合梯形，复合 Simpson 求积公式计算$\pi$的近似值。选择不同的 h , 对每种求积公式，试将误差刻画成h的函数，并比较两方法的精度。是否存在某个h值，当低于这个值之后再继续减小h的值，计算不再有所改进? 为什么?
+\item 实现Romberg求积方法，并重复上面的计算。
+\item 实现自适应的积分方法，并重复上面的计算。
+\end{itemize}
+\subsection{计算积分}
+Planck关于黑体辐射的理论推出积分$$\int _ { 0 } ^ { \infty } \frac { x ^ { 3 } } { e ^ { x } - 1 } \mathrm { d } x$$用所掌握的所有数值积分方法计算这个积分，比较不同方法的计算效率和精度。
+\section{任务一}
+将四种方法写成函数的形式。其中复合梯形和复合Simpson输入的是步长，而自适应和Romberg输入的是误差容限。自适应法采取的是调用自身的迭代法。
+\subsection{程序}
+\begin{lstlisting}
+#include <iostream>
+#include <iomanip>
+#include <math.h>
+using namespace std;
+#define PI 3.141592653589;
+double f(double x){
+    return 4.0/(1+x*x);
+}
+double T(double h,double a=0,double b=1){
+    double I=(f(a)+f(b))/2;
+    double x=a;
+    while(x+h<b){
+        x+=h;
+        I=I+f(x);
+    }
+    return I*h;
+}
+double S(double h,double a=0,double b=1){
+    double I=(f(a)+f(b))/3;
+    double x=a;
+    int n=1;
+    while(x+h<b){
+        x+=h;
+        I=I+2*f(x)/3+2*n*f(x)/3;
+        n=1-n;
+    }
+    return h*I;
+}
+
+double half(double epsilon,double a=0,double b=1){
+    double I=(f(a)+f(b))/2;
+    double temp=0;
+    double h=1;
+    while(abs(I-temp)>epsilon){
+        temp=I;
+        I=0.5*I;
+        double step=0.5*h;
+        while(step<b){
+            I=I+0.5*h*f(step);
+            step+=h;
+        }
+        h=0.5*h;
+    }
+    return I;
+}
+double romberg(double epsilon,double a=0,double b=1){
+    double count[20];//changable
+    int n=0;
+    double I=(f(a)+f(b))/2;
+    count[0]=I;n++;
+    double temp=0;
+    double h=1;
+    while(abs(I-temp)>epsilon){
+        temp=I;
+        I=0.5*I;
+        double step=0.5*h;
+        while(step<b){
+            I=I+0.5*h*f(step);
+            step+=h;
+        }
+        count[n]=I;n++;
+        h=0.5*h;
+    }
+    n=n-1;
+    double T[n][n];
+    T[0][0]=(f(a)+f(b))/2;
+    for(int i=0;i<n;i++){
+        T[i][0]=count[i];
+    }
+    for(int j=1;j<n;j++){
+        for(int i=j;i<n;i++){
+            T[i][j]=(pow(4,j)*T[i][j-1]-T[i-1][j-1])/(pow(4,j)-1);
+        }
+    }
+    return T[n-1][n-1];
+}
+double self(double a,double b,double epsilon){
+    if(abs(S((b-a)/2,a,b)-S((b-a)/4,(a+b)/2,b)-S((b-a)/4,a,(a+b)/2))<epsilon){
+        return S((b-a)/2,a,b);
+    }
+    else return self((a+b)/2,b,epsilon)+self(a,(a+b)/2,epsilon);
+}
+double gausslegendre(double h,double a=0,double b=1){
+    double I=0;
+    double x=a-h/2;
+    while(x+h<b){
+        x+=h;
+        I=I+h/2*(f(sqrt(3)*h/6+x)+f(-sqrt(3)*h/6+x));
+    }
+    return I;
+}
+int main() {
+    cout<<setprecision(12)<<T(0.000001)<<endl;
+    cout<<S(0.0000005)<<endl;
+    cout<<half(0.0001)<<endl;
+    cout<<self(0,1,0.000001)<<endl;
+    cout<<romberg(0.0001)<<endl;
+    cout<<gausslegendre(0.0001)<<endl;
+    return 0;
+}
+
+\end{lstlisting}
+\subsection{结果与分析}
+对某个h，如果最大误差$\max_{x} R_h(x)$已经小于舍入误差，那么计算精度不会再改进。
+
+\section{任务二}
+首先分析可行的方法。\par
+第一，由$$\int_0^{\infty}\frac{x^3}{e^x-1}dx=\frac{\pi ^4}{15},$$之前所有可以计算$\pi$的方法均可以在此处使用，本次报告掠过不提。精确值约为6.49393940226682。\par
+由于函数在x趋于无穷时趋于0，所以区间截断法可以使用。在截断后的区间上，使用本章节介绍的方法求解并且计时。\par
+通过变量代换，可以把无穷积分转换为有穷积分，现在尝试以下三种代换。
+$$\int_0^{\infty}\frac{x^3}{e^x-1}dx\overset{u=e^{-x}}{=}\int^1_{0}\frac{ln^3u}{u-1}du$$
+$$\int_0^{\infty}\frac{x^3}{e^x-1}dx\overset{u=arctanx}{=}\int^{\frac{\pi}{2}}_{0}\frac{1}{cos^2u}\frac{tan^3u}{e^{tanu}-1}du$$
+$$\int_0^{\infty}\frac{x^3}{e^x-1}dx=\int_0^{1}\frac{x^3}{e^x-1}dx+\int_1^{\infty}\frac{x^3}{e^x-1}dx\overset{x=\frac{1}{u}}{=}\int^1_{0}\frac{u^3}{e^u-1}+\frac{1}{u^5(e^{\frac{1}{u}}-1)}du$$
+\subsection{计算截断区间}
+由$$\int_b^{\infty}\frac{x^3}{e^x-1}dx<\int_b^{\infty}\frac{2e^{x/2}}{e^x}dx=4e^{-\frac{b}{2}}.$$
+我们有积分区间$$(0,  ln \frac{16}{\epsilon^2}).$$
+在这个区间上，我们用cut函数输出指定精度和种类的积分值与花费的时间。
+\subsection{程序}
+\begin{lstlisting}
+#include <iostream>
+#include <iomanip>
+#include <math.h>
+using namespace std;
+#define PI 3.141592653589;
+double f(double x){
+    return pow(x,3)/(exp(x)-1);
+}
+double T(double h,double a=0,double b=1){
+    double I=(f(a)+f(b))/2;
+    double x=a;
+    while(x+h<b){
+        x+=h;
+        I=I+f(x);
+    }
+    return I*h;
+}
+double S(double h,double a=0,double b=1){
+    double I=(f(a)+f(b))/3;
+    double x=a;
+    int n=1;
+    while(x+h<b){
+        x+=h;
+        I=I+2*f(x)/3+2*n*f(x)/3;
+        n=1-n;
+    }
+    return h*I;
+}
+
+double half(double epsilon,double a=0,double b=1){
+    double I=(f(a)+f(b))/2;
+    double temp=-5;
+    double h=b-a;
+    while(abs(I-temp)>epsilon){
+        temp=I;
+        I=0.5*I;
+        double step=0.5*h;
+        while(step<b){
+            I=I+0.5*h*f(step);
+            step+=h;
+        }
+        h=0.5*h;
+    }
+    return I;
+}
+double romberg(double epsilon,double a=0,double b=1){
+    double count[100];//changable
+    int n=0;
+    double I=(f(a)+f(b))/2;
+    count[0]=I;n++;
+    double temp=-5;
+    double h=b-a;
+    while(abs(I-temp)>epsilon){
+        temp=I;
+        I=0.5*I;
+        double step=0.5*h;
+        while(step<b){
+            I=I+0.5*h*f(step);
+            step+=h;
+        }
+        count[n]=I;n++;
+        h=0.5*h;
+    }
+    n=n-1;
+    double T[n][n];
+    T[0][0]=(f(a)+f(b))/2;
+    for(int i=0;i<n;i++){
+        T[i][0]=count[i];
+    }
+    for(int j=1;j<n;j++){
+        for(int i=j;i<n;i++){
+            T[i][j]=(pow(4,j)*T[i][j-1]-T[i-1][j-1])/(pow(4,j)-1);
+        }
+    }
+    return T[n-1][n-1];
+}
+double self(double a,double b,double epsilon){
+    if(abs(S((b-a)/2,a,b)-S((b-a)/4,(a+b)/2,b)-S((b-a)/4,a,(a+b)/2))<epsilon){
+        return S((b-a)/2,a,b);
+    }
+    else return self((a+b)/2,b,epsilon)+self(a,(a+b)/2,epsilon);
+}
+double gausslegendre(double h,double a=0,double b=1){
+    double I=0;
+    double x=a-h/2;
+    while(x+h<b){
+        x+=h;
+        I=I+h/2*(f(sqrt(3)*h/6+x)+f(-sqrt(3)*h/6+x));
+    }
+    return I;
+}
+double cut(double epsilon,int n){
+    double I=0;
+    double a=epsilon/100,b=log(16/epsilon/epsilon);
+    clock_t start=clock();
+    if(n==1){I=T(1,a,b);cout<<"T";}
+    if(n==2){I=S(1,a,b);cout<<"Simpson";}
+    if(n==3){I=half(epsilon,a,b);cout<<"half";}
+    if(n==4){I=romberg(epsilon,a,b);cout<<"romberg";}
+    if(n==5){I=self(a,b,epsilon);cout<<"self";}
+    if(n==6){I=gausslegendre(1,a,b);cout<<"gausslegendre";}
+    clock_t end=clock();
+    cout<<endl<<"time"<<(end-start)<<endl;
+    return I;
+}
+int main() {
+    for(int i=1;i<7;i++){
+        cout<<setprecision(15)<<cut(0.0001,i)<<endl<<endl;}
+    return 0;
+}
+
+\end{lstlisting}
+\subsection{结果与分析}
+\begin{lstlisting}
+T
+time51
+6.48977043637157
+
+Simpson
+time11
+6.5106022369413
+
+half
+time14
+6.49392891509266
+
+romberg
+time16
+6.49393339456984
+
+self
+time58
+6.49400443457754
+
+gausslegendre
+time7
+6.49323683380132
+
+\end{lstlisting}
+由于输入输出标准不同（有的输入误差容限，有的输入步长）。我们只能相对的比较各自的误差和时间。复合梯形积分时间超长，精度还不咋样，非常差劲。而辛普森积分用第二短的时间拿下了最大的误差。不过我们也应该注意到，由于这两种方法选取积分值点的僵化思维，使得在函数值比较大的点对于积分值影响较大。Legendre算法用了最短的时间，达到了相对优秀的精度。并且在我们减小步长之后精度迅速提高，是这三者里最优秀的。对于三个输入误差容限的函数，自适应，区间分半和Romberg，我们减小误差容限之后看出，自适应的运算时间较长，这是由其调用自身的特点决定的。并且由于每次判断的标准设为了Epsilon，最终的误差累计导致了精度降低。对区间分半和Romberg来说，由于加速的原因，减小误差容限之后Romberg的精度明显高于区间分半，而时间几乎没有增加。所以Romberg算法是较为优秀的选择，缺点就是代码太长，不可徒手写出。
+\subsection{积分变量代换的做法}
+对三种变换分别使用cut函数。代码中只修改f的取值和积分区间，所以此处不附。
+\subsection{结果与分析}
+第一种变换，只有勒让德算法和自适应算法可以快速输出符合精确要求的值，S和T误差过大，而其他两种则循环时间过长。从此处可以看出勒让德算法的精度相对高，而自适应算法应对导数变化较大的情况有很好的提高，避免了大量的无用功。
+第二种变换，情形非常糟糕，S和T的返回值已经失真，只有勒让德还保持了基本的素养，返回了相当精度的值。另外三种算法则花费极其漫长的时间，并且返回值也有一定失真。
+而到了第三种变换，输出的精度有了质的提高，基本可以达到我们所要的任意精度。分析原因是我们把积分转化为了有限区间上的有界积分，这是最简单的数值积分情况，计算效果必然好。但同时，计算时间也飞速增长，相比于之前的不超过2位，这里的运算时间往往4～5位数起步。分析原因有函数变得复杂调用耗时长，函数变化相对剧烈、取值点变多。
+\end{document}

@@ -1,0 +1,46 @@
+\documentclass{article}
+\usepackage{ctex}
+\usepackage{setspace}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{textcomp}
+\usepackage{amssymb} 
+\usepackage{amsfonts}
+\usepackage{amsfonts}
+\usepackage{esint}
+\usepackage{bm}
+\usepackage{geometry}
+\usepackage{fancyhdr}
+\usepackage{siunitx}
+\usepackage{wrapfig}
+\usepackage{tikz}
+\begin{document}
+
+\title{ \linespread{1.9}\selectfont 
+\Huge{Neural Network and Deep Learning}}
+    \author{Kuang Yaming Honors School\\171240510~~Ma Yuheng}
+    \date{2019.8.28}
+    \maketitle
+In the unzipped package, five files are presented. 
+\begin{itemize}
+\item mnist.pkl.gz, contains all MNIST data we will use
+\item mnist\_loader.py, for reading the MNIST data
+\item network.py, the main work we have done for network training
+\item exe.py, execution of training and digits recognition
+\item 1.png, an example picture of 0
+\end{itemize}
+\par
+In this document, I will present what I did based on knowledge from summer school, basically as following:
+\begin{itemize}
+\item apply stochastic gradient descent for feedforward network, which makes the SGD self-adjustable
+\item apply cross-entropy method to avoid slowing down when outputs greatly differs from expectation
+\item apply regularization to cost function to avoid overfitting as well as uncommon large weights
+\item apply adjusted initialize way to weights to prevent hidden layers to be saturated
+\item figure out the structure of MNIST and write a program to read and classify input hand-written digit
+\end{itemize}
+\par
+I have to admit that the codes are directly copied from Github of Michal Daniel Dobrzanski\footnote{https://github.com/MichalDanielDobrzanski}. I read through it and made some adjustments for detail. The first four improvements are talked about in chap. 3 of the book. The codes are self-descriptive and there are fairly comments in the line so I am not going to explain much here. What I want to do is to show that I can recognize a hand-written digit by myself. The process needs the third-party library $\textbf{cv2}$, which can be acquired by entering $pip install opencv-python$ in console( if you have installed pip) or follow the website here\footnote{https://pypi.org/project/opencv-python/}.\par
+Open exe.py, and assign the index of folder you unzipped the package onto index in console, for example:
+$$ \$\;\;\; index='/Users/mayuheng/Desktop/deeplearning'$$
+then run the file. As you can see the results coming out, the final accurancy on training data is about 97.664\% and we are confident that overfitting barely happened because this percentage keeps growing in 30 epoch trainings. After the training results, I have the recognition answer of the self-given picture. You can replace it to verify but please write clearly because it's about my grades of summer school.
+\end{document}

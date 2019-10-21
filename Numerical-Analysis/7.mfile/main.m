@@ -1,0 +1,15 @@
+x=0:20;
+x=5*cos(pi*(2*x2+1)/42);
+f1='newton(x)';
+f2='lagrange(x)';
+f3='line(x)';
+f4='natural(x)';
+f5='hermite(x)';
+f6='f(x)';
+fplot(f1,[-5,5],0.02);hold on;
+fplot(f2,[-5,5],0.02);
+fplot(f3,[-5,5],0.02);
+fplot(f4,[-5,5],0.02);
+fplot(f5,[-5,5],0.02);
+fplot(f6,[-5,5],0.02);
+hold off;

@@ -1,0 +1,471 @@
+% !Mode:: "TeX:UTF-8"
+
+\documentclass[a4paper,11pt,onecolumn,twoside]{article}
+\usepackage{fancyhdr}
+\usepackage{amsmath,amsfonts,amssymb,amsthm}
+\usepackage{graphicx}
+\usepackage{verbatim}
+\usepackage{mathptmx}
+\usepackage{booktabs}
+\usepackage[labelfont=bf]{caption}
+\usepackage{indentfirst}
+\usepackage{caption}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{subfigure}
+\usepackage{fontspec}
+\usepackage{appendix}
+\usepackage{listings}
+\usepackage{xeCJK}
+\newtheorem{lemma}{引理}[section]% Please change the following fonts if they are not available.
+\setmainfont{Times New Roman}
+
+\addtolength{\topmargin}{-54pt}
+\setlength{\oddsidemargin}{-0.9cm}
+\setlength{\evensidemargin}{\oddsidemargin}
+\setlength{\textwidth}{17.00cm}
+\setlength{\textheight}{24.50cm}
+
+\renewcommand{\baselinestretch}{1.1}
+\parindent 22pt
+
+\title{\textbf{第五次上机实验报告}}
+\author{
+马宇恒
+\\[2pt]
+{\small \textit{匡亚明学院 171240510}}}
+\date{}
+\fancypagestyle{firststyle}
+{
+   \fancyhf{}
+   \fancyhead[C]{数值计算实验报告}
+   \fancyhead[R]{\thepage}
+}
+
+\pagestyle{fancy}
+\fancyhf{}
+
+\fancyhead[LE,RO]{\thepage}
+\fancyhead[CE]{数值计算与实验}
+\fancyhead[RE]{}
+\fancyhead[CO]{}
+\fancyhead[LO]{}
+
+\setlist{nolistsep}
+\captionsetup{font=small}
+
+\newcommand{\supercite}[1]{\textsuperscript{\cite{#1}}}
+\begin{document}
+\maketitle
+\thispagestyle{firststyle}
+\setlength{\oddsidemargin}{ 1cm}
+\setlength{\evensidemargin}{\oddsidemargin}
+\setlength{\textwidth}{15.50cm}
+\vspace{-.8cm}
+
+
+\setcounter{page}{1}
+
+\setlength{\oddsidemargin}{-.5cm}  % 3.17cm - 1 inch
+\setlength{\evensidemargin}{\oddsidemargin}
+\setlength{\textwidth}{17.00cm}
+
+\section{实验目的}
+实现高斯列主元、按比例列主元、非交换按比例列主元、高斯约旦消元法解线性方程组。并使用他们分别求解例题和以希尔伯特矩阵作为增广矩阵的方程组。
+
+\section{任务}
+\subsection{算法}
+从基本的高斯消元思路出发，通过使用数组分别保存行主元绝对值、行交换顺序，改变消元范围来实现后三种方法。
+\subsection{程序}
+法一、二见附录A（一起实现）。法三见附录B。法四见附录C。
+\subsection{结果与分析}
+\subsubsection{例题}
+输入增广矩阵
+\begin{lstlisting}
+-1 2 -2 -3
+4 -3 1 5
+2 1 -1 1
+\end{lstlisting}
+分别得到输出
+\begin{lstlisting}
+4	-3	1	5	
+0	2.5	-1.5	-1.5	
+0	0	-1	-1	
+1 0 1 
+time231
+
+4	-3	1	5	
+0	2.5	-1.5	-1.5	
+0	0	-1	-1	
+1 0 1 
+time241
+
+0	0	-1	-1	
+4	-3	1	5	
+0	2.5	-1.5	-1.5	
+1 0 1 
+time185
+
+0	0	-1	-1	
+4	0	0	4	
+0	2.5	0	0	
+1 0 1 
+time269
+\end{lstlisting}
+方法二和方法一思路相同，不过由于多储存了一组数和多进行了一些运算，速度相应有所减缓，但是对不同特点的方程适应性更好。方法三在使用index数组储存行顺序的过程中很容易出现bug，逻辑比较复杂，但是速度有明显提高。法四运算量明显增大，不过有其独特作用。
+\subsubsection{希尔伯特矩阵}
+我们需要验证希尔伯特矩阵的求解是病态问题，所以取一组简单的解，如$$x=(1, \cdots , 1)^{T}$$
+增广矩阵则需要取为
+$$
+\left( \begin{array} { c c c c c c} { 1 } & { \frac { 1 } { 2 } } & { \cdots } & {}& { \frac { 1 } { n } } & {\sum_{k=1}^{n} \frac{1}{k}} \\ { \frac { 1 } { 2 } } & { \ddots} & { } & { } &{\vdots}&{\sum_{k=2}^{n+1} \frac{1}{k}}\\ { \vdots } & { }  & {\frac{1}{i+j-1} }&{} &{}&{\sum_{k=i}^{i+n-1} \frac{1}{k}}\\ {}&{}&{}&{\ddots}&{}&{} \\{ \frac { 1 } { n } } & { \cdots} &{}&{}& { \frac { 1 } { 2 n } } &{\sum_{k=n}^{2n} \frac{1}{k}}\end{array} \right)
+$$
+赋值的代码如下
+\begin{lstlisting}
+for(int i=0;i<m;i++){
+        for(int j=0;j<m;j++){
+            a[i][j]=1.0/(j+i+1);
+        }
+    }
+        for(int i=0;i<m;i++){
+            a[i][m]=0;
+            for(int j=0;j<m;j++){
+                a[i][m]+=a[i][j];
+            }
+        }
+\end{lstlisting}
+运行程序，输出m取3到40时的解的二范数，与理论值对比
+\begin{lstlisting}
+实际解二范数	理论解二范数	差值
+2		1.73205		0.267949
+2.23607		2		0.236068
+2.44949		2.23607		0.213422
+2.64575		2.44949		0.196262
+2.82843		2.64575		0.182676
+3		2.82843		0.171573
+3.16228		3		0.162278
+3.31662		3.16228		0.154347
+3.46422		3.31662		0.147595
+3.61839		3.4641		0.154292
+16.8017		3.60555		13.1962
+5.94328		3.74166		2.20162
+10.9974		3.87298		7.12445
+11.0675		4		7.06752
+41.7359		4.12311		37.6128
+39.5347		4.24264		35.292
+28.5012		4.3589		24.1423
+83.0477		4.47214		78.5756
+58.6187		4.58258		54.0361
+92.9998		4.69042		88.3094
+9922.75		4.79583		9917.95
+286.163		4.89898		281.264
+120.988		5		115.988
+334.245		5.09902		329.146
+257.786		5.19615		252.59
+115.11		5.2915		109.818
+293.836		5.38516		288.451
+172.94		5.47723		167.463
+242.542		5.56776		236.975
+178.151		5.65685		172.495
+102.009		5.74456		96.2645
+148.099		5.83095		142.268
+2295.96		5.91608		2290.04
+190.215		6		184.215
+281.252		6.08276		275.17
+469.301		6.16441		463.137
+288.553		6.245		282.308
+
+\end{lstlisting}
+换用方法二、三、四，差值的量级仍差不多。可以看出，对于迭代法，希尔伯特方程的解的确是病态问题。
+\begin{appendices}
+      \section{代码一}
+      \begin{lstlisting}
+#include <iostream>
+#include <math.h>
+#include <iomanip>
+using namespace std;
+int main() {
+    int m=3,n=m+1;
+    double a[m][n];
+    for(int i=0;i<m;i++){
+        for(int j=0;j<n;j++){
+            cin>>a[i][j];
+        }
+    }
+    clock_t start=clock();
+    double temp2[n];
+    double temp1[n];
+    ///////////////////////方法二储存每行最大值
+    double s[m];
+    for(int i=0;i<m;i++){
+        s[i]=a[i][0];
+        for(int j=0;j<m;j++){
+            if(a[i][j]>s[i]){
+                s[i]=a[i][j];
+            }
+            
+        }
+    }
+    
+    for(int i=0;i<m;i++){
+        ///////////////////////方法一找到最大位置
+        /*
+        int k=i;
+        double max=abs(a[i][i]);
+        for(int j=i;j<m;j++){
+            if(fabs(a[j][i])>max){
+                max=fabs(a[j][i]);
+                k=j;
+            }
+        }
+         */
+        ///////////////////////方法二找到最大位置
+        
+         int k=i;
+         double max=abs(a[i][i]/s[i]);
+         for(int j=i;j<m;j++){
+         if(fabs(a[j][i]/s[j])>max){
+         max=fabs(a[j][i]/s[j]);
+         k=j;
+         }
+         }
+        
+        ///////////////////////交换d
+
+        for(int t=i;t<n;t++){
+            temp2[t]=a[k][t];
+        }
+        for(int t=i;t<n;t++){
+            a[k][t]=a[i][t];
+        }
+        for(int t=i;t<n;t++){
+            a[i][t]=temp2[t];
+        }
+        ///////////////////////算系数
+        for(int j=i+1;j<m;j++){
+            temp1[j]=a[j][i]/temp2[i];
+        }
+        ///////////////////////相减
+        for(int j=i+1;j<m;j++){
+            for(int k=i;k<n;k++){
+                a[j][k]-=temp1[j]*temp2[k];
+            }
+        }
+    }
+    ///////////////////////输出
+    for(int q=0;q<m;q++){
+        for(int w=0;w<n;w++){
+            cout<<setprecision(2)<<a[q][w]<<"\t";
+        }
+        cout<<endl;
+    }
+    double results[m];
+    for(int i=0;i<m;i++){
+        results[i]=a[i][n-1];
+    }
+    results[m-1]=results[m-1]/a[m-1][m-1];
+    for(int i=m-2;i>=0;i--){
+        for(int j=m-1;j>i;j--){
+            results[i]-=a[i][j]*results[j];
+        }
+        results[i]=results[i]/a[i][i];
+    }
+    clock_t end=clock();
+    for(int i=0;i<m;i++){
+        cout<<results[i]<<" ";
+    }
+    cout<<endl<<"time"<<(end-start)<<endl;
+    return 0;
+}
+
+
+      \end{lstlisting}
+ \section{代码二}
+ \begin{lstlisting}
+#include <iostream>
+#include <math.h>
+#include <iomanip>
+using namespace std;
+int main() {
+    int m=3,n=m+1;
+    double a[m][n];
+    for(int i=0;i<m;i++){
+        for(int j=0;j<n;j++){
+            cin>>a[i][j];
+        }
+    }
+    clock_t start=clock();
+    double temp1[n];
+    int index[m];
+    for(int i=0;i<m;i++){
+        index[i]=i;
+    }
+    ///////////////////////方法二储存每行最大值
+    double s[m];
+    for(int i=0;i<m;i++){
+        s[i]=a[i][0];
+        for(int j=0;j<m;j++){
+            if(a[i][j]>s[i]){
+                s[i]=a[i][j];
+            }
+            
+        }
+    }
+    
+    for(int i=0;i<m;i++){
+        ///////////////////////方法一找到最大位置
+        /*
+         int k=i;
+         double max=abs(a[i][i]);
+         for(int j=i;j<m;j++){
+         if(fabs(a[j][i])>max){
+         max=fabs(a[j][i]);
+         k=j;
+         }
+         }
+         */
+        ///////////////////////方法二找到最大位置
+        int k=i;
+        double max=abs(a[i][i]/s[i]);
+        for(int j=i;j<m;j++){
+            if(fabs(a[index[j]][i]/s[index[j]])>max){
+                max=fabs(a[index[j]][i]/s[index[j]]);
+                k=j;
+            }
+        }
+        
+        ///////////////////////交换行顺序数组的值
+        
+        int temp=index[k];
+        index[k]=index[i];
+        index[i]=temp;
+        ///////////////////////算系数
+        for(int j=i+1;j<m;j++){
+            temp1[index[j]]=a[index[j]][i]/a[index[i]][i];
+        }
+        ///////////////////////相减
+        for(int j=i+1;j<m;j++){
+            for(int s=i;s<n;s++){
+                a[index[j]][s]-=temp1[index[j]]*a[index[i]][s];
+            }
+        }
+    }
+    ///////////////////////输出
+    for(int q=0;q<m;q++){
+        for(int w=0;w<n;w++){
+            cout<<setprecision(2)<<a[q][w]<<"\t";
+        }
+        cout<<endl;
+    }
+    double results[m];
+    for(int i=0;i<m;i++){
+        results[i]=a[i][n-1];
+    }
+    results[index[m-1]]=results[index[m-1]]/a[index[m-1]][m-1];
+    for(int i=m-2;i>=0;i--){
+        for(int j=m-1;j>i;j--){
+            results[index[i]]-=a[index[i]][j]*results[index[j]];
+        }
+        results[index[i]]=results[index[i]]/a[index[i]][i];
+    }
+    clock_t end=clock();
+    for(int i=0;i<m;i++){
+        cout<<results[index[i]]<<" ";
+    }
+        cout<<endl<<"time"<<(end-start)<<endl;
+    return 0;
+}
+
+\end{lstlisting}
+\section{代码三}
+\begin{lstlisting}
+#include <iostream>
+#include <math.h>
+#include <iomanip>
+using namespace std;
+int main() {
+    int m=3,n=m+1;
+    double a[m][n];
+    for(int i=0;i<m;i++){
+        for(int j=0;j<n;j++){
+            cin>>a[i][j];
+        }
+    }
+    double temp1[n];
+    int index[m];
+    for(int i=0;i<m;i++){
+        index[i]=i;
+    }
+    clock_t start=clock();
+    ///////////////////////方法二储存每行最大值
+    double s[m];
+    for(int i=0;i<m;i++){
+        s[i]=a[i][0];
+        for(int j=0;j<m;j++){
+            if(a[i][j]>s[i]){
+                s[i]=a[i][j];
+            }
+            
+        }
+    }
+    
+    for(int i=0;i<m;i++){
+        ///////////////////////方法一找到最大位置
+        /*
+         int k=i;
+         double max=abs(a[i][i]);
+         for(int j=0;j<m;j++){
+         if(fabs(a[j][i])>max){
+         max=fabs(a[j][i]);
+         k=j;
+         }
+         }
+         */
+        ///////////////////////方法二找到最大位置
+        int k=i;
+        double max=abs(a[i][i]/s[i]);
+        for(int j=0;j<m;j++){
+            if(fabs(a[index[j]][i]/s[index[j]])>max){
+                max=fabs(a[index[j]][i]/s[index[j]]);
+                k=j;
+            }
+        }
+        
+        ///////////////////////交换行顺序数组的值
+        
+        int temp=index[k];
+        index[k]=index[i];
+        index[i]=temp;
+        ///////////////////////算系数
+        for(int j=0;j<m;j++){
+            temp1[index[j]]=a[index[j]][i]/a[index[i]][i];
+        }
+        ///////////////////////相减
+        for(int j=0;j<m;j++){
+            if(j==i){continue;}
+            for(int s=0;s<n;s++){
+                a[index[j]][s]-=temp1[index[j]]*a[index[i]][s];
+            }
+        }
+    }
+    ///////////////////////输出
+    for(int q=0;q<m;q++){
+        for(int w=0;w<n;w++){
+            cout<<setprecision(2)<<a[q][w]<<"\t";
+        }
+        cout<<endl;
+    }
+    double results[m];
+    for(int i=0;i<m;i++){
+        results[index[i]]=a[index[i]][n-1]/a[index[i]][i];
+    }
+    clock_t end=clock();
+    for(int i=0;i<m;i++){
+        cout<<results[index[i]]<<" ";
+    }
+    cout<<endl<<"time"<<(end-start)<<endl;
+    return 0;
+}
+
+\end{lstlisting}
+ \end{appendices}
+\end{document}
