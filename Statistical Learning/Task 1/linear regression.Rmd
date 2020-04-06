@@ -1,0 +1,270 @@
+---
+title: "Statistical Learning HW1"
+author: "Yuheng Ma"
+date: "3/30/2020"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+There is seven questions from $\textbf{An Introduction to Statistical Learning with Applications in R}$ by G. James that we should answer by this task.
+
+1. Is there a relationship between advertising budget and sales?
+Our first goal should be to determine whether the data provide
+evidence of an association between advertising expenditure and sales. If the evidence is weak, then one might argue that no money should be spent on advertising!
+
+2. How strong is the relationship between advertising budget and sales? Assuming that there is a relationship between advertising and sales, we would like to know the strength of this relationship. In other words, given a certain advertising budget, can we predict sales with a high level of accuracy? This would be a strong relationship. Or is a prediction of sales based on advertising expenditure only slightly better than a random guess? This would be a weak relationship.
+
+3. Which media contribute to sales?
+Do all three media—TV, radio, and newspaper—contribute to sales, or do just one or two of the media contribute? To answer this question, we must find a way to separate out the individual effects of each medium when we have spent money on all three media.
+
+4. How accurately can we estimate the effect of each medium on sales? For every dollar spent on advertising in a particular medium, by what amount will sales increase? How accurately can we predict this amount of increase?
+
+5. How accurately can we predict future sales?
+For any given level of television, radio, or newspaper advertising, what is our prediction for sales, and what is the accuracy of this prediction?
+
+6. Is the relationship linear?
+If there is approximately a straight-line relationship between advertis- ing expenditure in the various media and sales, then linear regression is an appropriate tool. If not, then it may still be possible to trans- form the predictor or the response so that linear regression can be used.
+
+7. Is there synergy among the advertising media?
+Perhaps spending $50,000 on television advertising and $50,000 on radio advertising results in more sales than allocating $100,000 to either television or radio individually. In marketing, this is known as a synergy effect, while in statistics it is called an interaction effect.
+
+The data we use is $\mathbf{Credit}$ from ISLR, data package attached to the book. We shall answer these questions by a linear model.
+
+## Main Code
+
+```{r}
+# The regression-test function filed up for further call
+linreg<-function(type,training,test,training0=0,residualplot=0){
+  # regress everything
+  if (type=="simple"){
+    lmodel=lm(Balance ~    Income+Limit+Rating+Cards+Age+Education+Gender+Married+
+                Student+Ethnicity,training)
+    print(summary(lmodel))
+    par(mfrow=c(2,2))
+    plot(lmodel)
+    result<-predict(lmodel,test)
+    result[result<0]=0
+    # squared residue 
+    error=result-test$Balance
+    error=error*error
+    # divided by degree of freedom
+    print("MSE:")
+    print(sum(error)/length(error))
+  }
+  
+  else if(type=="select"){
+    lmodel=lm(Balance ~    Income+Limit+Rating+Cards+Age+Education+Gender+Married+
+                Student+Ethnicity,training)
+    #using step variable selection
+    lmodel=step(lmodel)
+    print(summary(lmodel))
+    par(mfrow=c(2,2))
+    plot(lmodel)
+    result<-predict(lmodel,test)
+    result[result<0]=0
+    error=result-test$Balance
+    error=error*error
+    print("MSE:")
+    print(sum(error)/length(error))
+  }
+  else if(type=="cutoff"){
+    # now training set is actually training_1
+    lmodel=lm(Balance ~    Income+Limit+Rating+Cards+Age+Education+Gender+Married+
+                Student+Ethnicity,training)
+    lmodel=step(lmodel,trace = 0)
+    if (residualplot==0){
+    print(summary(lmodel))
+    par(mfrow=c(2,2))
+    plot(lmodel)
+    # validate how well training_0 is predicted
+    validate<-predict(lmodel,training0)
+    validate[validate<0]=0
+    # print rate of correction
+    print("Correct Rate:")
+    print(length(validate[validate==0])/length(validate))
+    result<-predict(lmodel,test)
+    result[result<0]=0
+    error=result-test$Balance
+    error=error*error
+    print("MSE:")
+    print(sum(error)/length(error))
+    }
+    if (residualplot==1){
+    par(mfrow=c(2,3))
+    for (i in 2:7){
+      plot(training[[i]],lmodel$residuals)
+    }
+    }
+  }
+  else if(type=="cutoffinter"){
+    # now training set is actually training_1
+    lmodel=lm(Balance ~ (Income+Limit+Rating+Cards+Age+Education+Gender+Married+
+    Student+Ethnicity)*(Income+Limit+Rating+Cards+Age+Education+Gender+Married+
+                          Student+Ethnicity),training)
+    lmodel=step(lmodel,trace = 0)
+    if (residualplot==0){
+    print(summary(lmodel))
+    par(mfrow=c(2,2))
+    plot(lmodel)
+    # validate how well training_0 is predicted
+    validate<-predict(lmodel,training0)
+    validate[validate<0]=0
+    # print rate of correction
+    print("Correct Rate:")
+    print(length(validate[validate==0])/length(validate))
+    result<-predict(lmodel,test)
+    result[result<0]=0
+    error=result-test$Balance
+    error=error*error
+    print("MSE:")
+    print(sum(error)/length(error))
+    }
+    if (residualplot==1){
+    par(mfrow=c(2,3))
+    for (i in 2:7){
+      plot(training[[i]],lmodel$residuals)
+    }
+    }
+  }
+  else if(type=="printer"){
+    # now training set is actually training_1
+    lmodel=lm(Balance ~    Income+Limit+Rating+Cards+Age+Education+Gender+Married+
+                Student+Ethnicity,training)
+    lmodel=step(lmodel,trace = 0)
+  summary(lmodel)
+  }
+  else if(type=="confint"){
+    # now training set is actually training_1
+    lmodel=lm(Balance ~    Income+Limit+Rating+Cards+Age+Education+Gender+Married+
+                Student+Ethnicity,training)
+    lmodel=step(lmodel,trace = 0)
+  confint(lmodel)
+  }
+}
+```
+
+
+
+## Data Exploration
+```{r}
+library(ISLR)
+library(corrplot)
+data("Credit")
+str(Credit)
+```
+We take a look at the distribution of numerical variables. 
+
+```{r}
+par(mfrow=c(3,3))
+for (i in c(2:7,12)){
+  x=Credit[[i]]
+hist(x,probability=T)
+d<-density(x, bw = "sj")
+lines(d,col="blue")
+}
+
+```
+
+It seems apparent that while other data is of some usual distribution, such as poisson or normal, the data of balance, which has a mode at balance=0, is clearly ill-posed. The reason is that, balance can't be negative. People with great tendency not to borrow from bank will have the same balance, zero, with people have less but positive tendency. Thus, this is a cut-off data. This can also be seen if we make paired plot of the variables. 
+```{r}
+par(mfrow=c(2,3))
+for (i in c(2:7)){
+  plot(Credit[[12]],Credit[[i]])
+}
+
+```
+
+Note that there is a clear cut-off at Balance=0. Knowing this, the problem becomes a multi-region linear regression. Thus we design the learning process as 
+
+1. Separate the data set into training set, $X$ (250 data) and test set $X_T$ (150 data). Separate training set into $X_0 = \{x|x\in X,x \$ balance=0\}$ and $X_1=\{x|x\in X,x \$ balance>0\}$.
+
+2. Do linear regression on $X_1$ and get a 95% correct rate on $X_0$.
+
+Also, we might want to check the relationship between variables.
+
+```{r}
+res1 <- cor.mtest(Credit[c(1:7,12)], conf.level = 0.95)
+corrplot(cor(Credit[c(1:7,12)]),sig.level = .05,p.mat = res1$p)
+```
+
+
+What we have done above is looking at the data mindlessly, which gives the information that some of the variables have a strong correlation. 
+
+## Linear Regression
+
+Next, we shall separate training set and test set and build predicting model step by step to see the variation of MSE. We pile up this process in a function.
+
+```{r}
+# separating data set
+training=Credit[1:250,]
+training0<-training[training$Balance==0,]
+training1<-training[training$Balance>0,]
+test=Credit[251:400,]
+```
+
+
+```{r}
+# do silly regression
+linreg("simple",training,test)
+```
+
+
+
+We see that the MSE now is $\frac{1}{n}\sum (balance-\hat{balance})^2$=3877.899, while we directly regress everything. 
+
+Then we plug in variable selection process. 
+
+```{r}
+# do variable selection
+linreg("select",training,test)
+```
+
+A slight improve, but residue plot tells that we are still far from success. Now we apply procedure illustrated by cut-off data.
+
+```{r}
+# perform cut off version
+linreg("cutoff",training1,test,training0 = training0)
+```
+
+The result shows significant improvement. Correct rate on $X_0$ is 1, which means all estimates on $X_0$ is less equal than 0. Diagnosis plots also give great results stating that residues are generally noninformative. R square is 0.9995, also a lot better than before. Thus we regard cut-off an effective method and do further optimization of inference on $X_1$. We start by plotting residues w.r.t. variables.
+
+```{r}
+# plot residuals
+linreg("cutoff",training1,test,training0 = training0,residualplot = 1)
+```
+
+Speechless. This is too good to add anything else. Note that these plot exclude the posibility of quadratic terms. We shall consider issure of interaction terms. Though we have no clue of doing so, but after regression on them,
+
+```{r}
+# interaction terms
+linreg("cutoffinter",training1,test,training0 = training0)
+```
+
+OK, nothing good happened. 
+
+## The Questions
+
+1. Obviously yes.
+2. For income, limit, rating, cards number, age and whetheris student, it is significantly relevant. 
+3. As in 2.
+4. 95% confident intervals are as follows. Note that relative errors are all small enough that the prediction is effective. 
+```{r}
+linreg("confint",training1,test,training0 = training0)
+```
+5. MSE is 106.7317, which is that (if normal) a 95% confidence interval is of length about 400 dollar.
+6. It is piecewise linear.
+7. Not there is not.
+
+## Conclusion
+
+We conclude that the linear model we specify is as follows:
+
+```{r}
+# a printer of model
+linreg("printer",training1,test,training0 = training0)
+```
+
+while estimates less equal than 0 are 0. The optimized MSE is 106.7317.
+
+
