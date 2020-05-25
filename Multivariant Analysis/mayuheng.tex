@@ -1,0 +1,876 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={多元统计分析课程论文},
+            pdfauthor={匡亚明学院 马宇恒 171240510; myh},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\providecommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{多元统计分析课程论文}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{匡亚明学院 马宇恒 171240510 \\ myh}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{2020/5/4}
+
+
+\begin{document}
+\maketitle
+
+\subsection{引言}
+
+报告采用多元统计分析课程中所包含的多种分类器对红酒数据进行分类。该数据集是1991年由Institute
+of Pharmaceutical and Food Analysis and Technologies, Genoa, Italy的M.
+Forina等人提供，是机器学习领域经典的分类任务数据集。数据集记录了来自意大利同一地区、由相同工艺和三个品种葡萄制作的红酒的十三种化学成分含量，所有的指标均为数值变量。
+
+\subsection{数据集整理与探索}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(corrplot)}
+\KeywordTok{library}\NormalTok{(stats)}
+\KeywordTok{library}\NormalTok{(mvnormtest)}
+\KeywordTok{library}\NormalTok{(cramer)}
+\KeywordTok{library}\NormalTok{(ggplot2)}
+\KeywordTok{library}\NormalTok{(MASS)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{wine<-}\KeywordTok{read.csv}\NormalTok{(}\StringTok{"./wine/winedata"}\NormalTok{,}\DataTypeTok{header =} \OtherTok{FALSE}\NormalTok{)}
+\KeywordTok{colnames}\NormalTok{(wine)<-}\KeywordTok{c}\NormalTok{(}\StringTok{"Type"}\NormalTok{,}\StringTok{"Alcohol"}\NormalTok{,}\StringTok{"Malicacid"}\NormalTok{,}\StringTok{"Ash"}\NormalTok{,}\StringTok{"Alcalinityofash"}\NormalTok{,}\StringTok{"Magnesium"}\NormalTok{,}\StringTok{"Totalphenols"}\NormalTok{,}\StringTok{"Flavanoids"}\NormalTok{,}\StringTok{"Nonflavanoidphenols"}\NormalTok{,}\StringTok{"Proanthocyanins"}\NormalTok{,}\StringTok{"Colorintensity"}\NormalTok{,}\StringTok{"Hue"}\NormalTok{,}\StringTok{"OD280.OD315diluted"}\NormalTok{,}\StringTok{"Proline"}\NormalTok{)}
+\NormalTok{wine[}\DecValTok{1}\OperatorTok{:}\DecValTok{10}\NormalTok{,]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##    Type Alcohol Malicacid  Ash Alcalinityofash Magnesium Totalphenols
+## 1     1   14.23      1.71 2.43            15.6       127         2.80
+## 2     1   13.20      1.78 2.14            11.2       100         2.65
+## 3     1   13.16      2.36 2.67            18.6       101         2.80
+## 4     1   14.37      1.95 2.50            16.8       113         3.85
+## 5     1   13.24      2.59 2.87            21.0       118         2.80
+## 6     1   14.20      1.76 2.45            15.2       112         3.27
+## 7     1   14.39      1.87 2.45            14.6        96         2.50
+## 8     1   14.06      2.15 2.61            17.6       121         2.60
+## 9     1   14.83      1.64 2.17            14.0        97         2.80
+## 10    1   13.86      1.35 2.27            16.0        98         2.98
+##    Flavanoids Nonflavanoidphenols Proanthocyanins Colorintensity  Hue
+## 1        3.06                0.28            2.29           5.64 1.04
+## 2        2.76                0.26            1.28           4.38 1.05
+## 3        3.24                0.30            2.81           5.68 1.03
+## 4        3.49                0.24            2.18           7.80 0.86
+## 5        2.69                0.39            1.82           4.32 1.04
+## 6        3.39                0.34            1.97           6.75 1.05
+## 7        2.52                0.30            1.98           5.25 1.02
+## 8        2.51                0.31            1.25           5.05 1.06
+## 9        2.98                0.29            1.98           5.20 1.08
+## 10       3.15                0.22            1.85           7.22 1.01
+##    OD280.OD315diluted Proline
+## 1                3.92    1065
+## 2                3.40    1050
+## 3                3.17    1185
+## 4                3.45    1480
+## 5                2.93     735
+## 6                2.85    1450
+## 7                3.58    1290
+## 8                3.58    1295
+## 9                2.85    1045
+## 10               3.55    1045
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{par}\NormalTok{(}\DataTypeTok{mfrow=}\KeywordTok{c}\NormalTok{(}\DecValTok{3}\NormalTok{,}\DecValTok{5}\NormalTok{))}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{2}\OperatorTok{:}\DecValTok{14}\NormalTok{)\{}
+\NormalTok{  x=wine[[i]]}
+\KeywordTok{hist}\NormalTok{(x,}\DataTypeTok{probability=}\NormalTok{T)}
+\NormalTok{d<-}\KeywordTok{density}\NormalTok{(x, }\DataTypeTok{bw =} \StringTok{"sj"}\NormalTok{)}
+\KeywordTok{lines}\NormalTok{(d,}\DataTypeTok{col=}\StringTok{"blue"}\NormalTok{)}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{mayuheng_files/figure-latex/unnamed-chunk-3-1.pdf}
+
+给出每个变量的分布直方图，接下来对每个类别进行正态性检验。
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{multinormtest<-}\ControlFlowTok{function}\NormalTok{(D,i)\{}
+\NormalTok{  U<-D[D[}\DecValTok{1}\NormalTok{]}\OperatorTok{==}\NormalTok{i,][}\DecValTok{2}\OperatorTok{:}\DecValTok{14}\NormalTok{]}
+  \KeywordTok{mshapiro.test}\NormalTok{(}\KeywordTok{t}\NormalTok{(U))}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{multinormtest}\NormalTok{(wine,}\DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Shapiro-Wilk normality test
+## 
+## data:  Z
+## W = 0.82894, p-value = 9.091e-07
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{multinormtest}\NormalTok{(wine,}\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Shapiro-Wilk normality test
+## 
+## data:  Z
+## W = 0.72144, p-value = 2.652e-10
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{multinormtest}\NormalTok{(wine,}\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## 
+##  Shapiro-Wilk normality test
+## 
+## data:  Z
+## W = 0.85694, p-value = 3.34e-05
+\end{verbatim}
+
+所以我们大致认为数据有正态性，且生成模型为混合高斯。接下来检验每个总体之间是否有显著性差异。首先我们需要验证方差是否相等，所以做如下假设检验。
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{multi.var.test=}\ControlFlowTok{function}\NormalTok{(data)\{}
+\NormalTok{  n=}\KeywordTok{nrow}\NormalTok{(data)}
+\NormalTok{  p=}\KeywordTok{ncol}\NormalTok{(data)}\OperatorTok{-}\DecValTok{1}
+\NormalTok{  lambda=(}\KeywordTok{det}\NormalTok{((n}\DecValTok{-1}\NormalTok{)}\OperatorTok{*}\KeywordTok{var}\NormalTok{(data[}\DecValTok{2}\OperatorTok{:}\DecValTok{14}\NormalTok{])}\OperatorTok{/}\NormalTok{n))}\OperatorTok{^}\NormalTok{(}\OperatorTok{-}\NormalTok{n}\OperatorTok{/}\DecValTok{2}\NormalTok{)}
+\NormalTok{  d=}\DecValTok{0}
+\NormalTok{  k=}\DecValTok{3}
+  \CommentTok{#preset}
+  \ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\NormalTok{k)\{}
+\NormalTok{    datatemp=data[data}\OperatorTok{$}\NormalTok{Type}\OperatorTok{==}\NormalTok{i,}\DecValTok{2}\OperatorTok{:}\DecValTok{14}\NormalTok{]}
+\NormalTok{    tempn=}\KeywordTok{nrow}\NormalTok{(datatemp)}
+\NormalTok{    d=d}\OperatorTok{+}\DecValTok{1}\OperatorTok{/}\NormalTok{(tempn}\DecValTok{-1}\NormalTok{)}
+\NormalTok{    lambda=lambda}\OperatorTok{/}\NormalTok{(}\KeywordTok{det}\NormalTok{((tempn}\DecValTok{-1}\NormalTok{)}\OperatorTok{*}\KeywordTok{var}\NormalTok{(datatemp)}\OperatorTok{/}\NormalTok{tempn))}\OperatorTok{^}\NormalTok{(}\OperatorTok{-}\NormalTok{tempn}\OperatorTok{/}\DecValTok{2}\NormalTok{)}
+\NormalTok{  \}}
+  
+\NormalTok{  d=(}\DecValTok{2}\OperatorTok{*}\NormalTok{p}\OperatorTok{^}\DecValTok{2}\OperatorTok{+}\DecValTok{3}\OperatorTok{*}\NormalTok{p}\DecValTok{-1}\NormalTok{)}\OperatorTok{*}\NormalTok{(d}\DecValTok{-1}\OperatorTok{/}\NormalTok{(n}\OperatorTok{-}\NormalTok{k))}\OperatorTok{/}\NormalTok{(}\DecValTok{6}\OperatorTok{*}\NormalTok{(p}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{*}\NormalTok{(k}\DecValTok{-1}\NormalTok{))}
+\NormalTok{  Chi=}\OperatorTok{-}\DecValTok{2}\OperatorTok{*}\NormalTok{(}\DecValTok{1}\OperatorTok{-}\NormalTok{d)}\OperatorTok{*}\KeywordTok{log}\NormalTok{(lambda)}
+\NormalTok{  p.value=}\DecValTok{1}\OperatorTok{-}\KeywordTok{pchisq}\NormalTok{(Chi, }\FloatTok{0.5}\OperatorTok{*}\NormalTok{p}\OperatorTok{*}\NormalTok{(p}\OperatorTok{+}\DecValTok{1}\NormalTok{)}\OperatorTok{*}\NormalTok{(k}\DecValTok{-1}\NormalTok{))}
+  \KeywordTok{return}\NormalTok{(}\DataTypeTok{p.value=}\NormalTok{p.value)}
+  
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{multi.var.test}\NormalTok{(wine)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0
+\end{verbatim}
+
+p值输出为0，通过在console中读取参数值可知检验统计量已经达到1325，远超自由度为182的Chi平方分布的置信区间。所以三组协方差矩阵显著的不相等。所以我们采取协方差矩阵不相等时的检验方法。
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{multi.difmu.test<-}\ControlFlowTok{function}\NormalTok{(data,k,h)\{}
+\NormalTok{  p=}\KeywordTok{ncol}\NormalTok{(data)}\OperatorTok{-}\DecValTok{1}
+  \ControlFlowTok{if}\NormalTok{ (}\KeywordTok{ncol}\NormalTok{(data[data}\OperatorTok{$}\NormalTok{Type}\OperatorTok{==}\NormalTok{k,])}\OperatorTok{<}\KeywordTok{ncol}\NormalTok{(data[data}\OperatorTok{$}\NormalTok{Type}\OperatorTok{==}\NormalTok{h,]))\{}
+\NormalTok{    datan<-data[data}\OperatorTok{$}\NormalTok{Type}\OperatorTok{==}\NormalTok{k,}\DecValTok{2}\OperatorTok{:}\DecValTok{14}\NormalTok{]}
+\NormalTok{    datam<-data[data}\OperatorTok{$}\NormalTok{Type}\OperatorTok{==}\NormalTok{h,}\DecValTok{2}\OperatorTok{:}\DecValTok{14}\NormalTok{]}
+\NormalTok{    n=}\KeywordTok{ncol}\NormalTok{(data[data}\OperatorTok{$}\NormalTok{Type}\OperatorTok{==}\NormalTok{k,])}
+\NormalTok{    m=}\KeywordTok{ncol}\NormalTok{(data[data}\OperatorTok{$}\NormalTok{Type}\OperatorTok{==}\NormalTok{h,])}
+\NormalTok{  \}}
+  \ControlFlowTok{else}\NormalTok{\{}
+\NormalTok{    datan<-data[data}\OperatorTok{$}\NormalTok{Type}\OperatorTok{==}\NormalTok{h,}\DecValTok{2}\OperatorTok{:}\DecValTok{14}\NormalTok{]}
+\NormalTok{    datam<-data[data}\OperatorTok{$}\NormalTok{Type}\OperatorTok{==}\NormalTok{k,}\DecValTok{2}\OperatorTok{:}\DecValTok{14}\NormalTok{]}
+\NormalTok{    n=}\KeywordTok{ncol}\NormalTok{(data[data}\OperatorTok{$}\NormalTok{Type}\OperatorTok{==}\NormalTok{h,])}
+\NormalTok{    m=}\KeywordTok{ncol}\NormalTok{(data[data}\OperatorTok{$}\NormalTok{Type}\OperatorTok{==}\NormalTok{k,])}
+\NormalTok{  \}}
+\NormalTok{  dataz<-datan}
+  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\NormalTok{n)\{}
+\NormalTok{    dataz[i,]=datan[i,]}\OperatorTok{-}\KeywordTok{sqrt}\NormalTok{(n}\OperatorTok{/}\NormalTok{m)}\OperatorTok{*}\NormalTok{datam[i,]}\OperatorTok{+}\KeywordTok{sqrt}\NormalTok{(}\DecValTok{1}\OperatorTok{/}\NormalTok{m}\OperatorTok{*}\NormalTok{n)}\OperatorTok{*}\KeywordTok{apply}\NormalTok{(datam[}\DecValTok{1}\OperatorTok{:}\NormalTok{n,],}\DecValTok{2}\NormalTok{, mean)}\OperatorTok{-}\KeywordTok{apply}\NormalTok{(datam,}\DecValTok{2}\NormalTok{,mean)}\OperatorTok{/}\NormalTok{m}
+\NormalTok{  \}}
+\NormalTok{  mu<-}\KeywordTok{as.matrix}\NormalTok{(}\KeywordTok{apply}\NormalTok{(dataz,}\DecValTok{2}\NormalTok{,mean))}
+\NormalTok{  sigmainv=}\KeywordTok{as.matrix}\NormalTok{(}\KeywordTok{solve}\NormalTok{(}\KeywordTok{var}\NormalTok{(dataz)))}
+\NormalTok{  Fstatistics=}\KeywordTok{sum}\NormalTok{(}\KeywordTok{diag}\NormalTok{((n}\OperatorTok{-}\NormalTok{p)}\OperatorTok{*}\NormalTok{n}\OperatorTok{*}\KeywordTok{t}\NormalTok{(mu)}\OperatorTok{%*%}\NormalTok{sigmainv}\OperatorTok{%*%}\NormalTok{mu}\OperatorTok{/}\NormalTok{((n}\DecValTok{-1}\NormalTok{)}\OperatorTok{*}\NormalTok{p)))}
+\NormalTok{  p.value=}\DecValTok{1}\OperatorTok{-}\KeywordTok{pf}\NormalTok{(Fstatistics, p,n}\OperatorTok{-}\NormalTok{p)}
+  \KeywordTok{return}\NormalTok{(}\DataTypeTok{p.value=}\NormalTok{p.value)}
+\NormalTok{\}}
+\KeywordTok{multi.difmu.test}\NormalTok{(wine,}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.09944742
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{multi.difmu.test}\NormalTok{(wine,}\DecValTok{3}\NormalTok{,}\DecValTok{2}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.09359039
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{multi.difmu.test}\NormalTok{(wine,}\DecValTok{3}\NormalTok{,}\DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0.08803599
+\end{verbatim}
+
+虽然不愿意承认，但是我们的三类数据都没有显著的区别于彼此。不过我们并不能以此接受原假设。事实上，当我们使用不同的分类器进行分类时，取得的效果相当理想。这也是众多论文采用本数据集进行算法初步检验的原因。课本中提到，当协方差矩阵差异巨大时，这种两样本检验并不准确，这更加坚定了我们继续下去的决心。
+
+\begin{verbatim}
+## [1] 0.1273456
+\end{verbatim}
+
+\begin{verbatim}
+## [1] 0.1164943
+\end{verbatim}
+
+\begin{verbatim}
+## [1] 0.1044048
+\end{verbatim}
+
+除了总体的区分度外，我们还要查看因变量之间的相关性。
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{res1 <-}\StringTok{ }\KeywordTok{cor.mtest}\NormalTok{(wine[}\KeywordTok{c}\NormalTok{(}\DecValTok{2}\OperatorTok{:}\DecValTok{14}\NormalTok{)], }\DataTypeTok{conf.level =} \FloatTok{0.95}\NormalTok{)}
+\KeywordTok{corrplot}\NormalTok{(}\KeywordTok{cor}\NormalTok{(wine[}\DecValTok{2}\OperatorTok{:}\DecValTok{14}\NormalTok{]),}\DataTypeTok{sig.level =} \FloatTok{.05}\NormalTok{,}\DataTypeTok{p.mat =}\NormalTok{ res1}\OperatorTok{$}\NormalTok{p)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{mayuheng_files/figure-latex/unnamed-chunk-11-1.pdf}
+
+可以看到不同变量之间的相关性比较显著。这给了我们采取PCA进行分类的提示。
+
+\subsection{训练集拆分}
+
+我们按照7:3的比例随机拆分训练集和测试集合。
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{set.seed}\NormalTok{(}\DecValTok{521}\NormalTok{)}
+\NormalTok{index<-}\KeywordTok{sample}\NormalTok{(}\DecValTok{1}\OperatorTok{:}\KeywordTok{nrow}\NormalTok{(wine),}\KeywordTok{round}\NormalTok{(}\KeywordTok{nrow}\NormalTok{(wine)}\OperatorTok{*}\DecValTok{3}\OperatorTok{/}\DecValTok{10}\NormalTok{))}
+\NormalTok{wine_test<-wine[index,]}
+\NormalTok{wine_train<-wine[}\OperatorTok{-}\NormalTok{index,]}
+\NormalTok{wine_test}
+\NormalTok{wine_train}
+\end{Highlighting}
+\end{Shaded}
+
+\subsection{数据中心化与标准化}
+
+拆分数据集之后，我们可以选择直接使用数据训练模型，但如果我们对数据的量级进行绘图：
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{scaleplot<-}\ControlFlowTok{function}\NormalTok{(data,name,}\DataTypeTok{iflog=}\DecValTok{0}\NormalTok{)\{}
+\NormalTok{  data<-data[}\KeywordTok{c}\NormalTok{(}\DecValTok{1}\NormalTok{,}\KeywordTok{which}\NormalTok{(}\KeywordTok{colnames}\NormalTok{(data)}\OperatorTok{==}\NormalTok{name))]}
+\NormalTok{  indexx=}\OtherTok{NULL}
+\NormalTok{  indexy=}\OtherTok{NULL}
+\NormalTok{  indextype=}\OtherTok{NULL}
+  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(name))\{}
+\NormalTok{    indexx=}\KeywordTok{c}\NormalTok{(indexx,}\DecValTok{1}\OperatorTok{:}\KeywordTok{nrow}\NormalTok{(data))}
+\NormalTok{    indexy=}\KeywordTok{c}\NormalTok{(indexy,data[[name[i]]])}
+\NormalTok{    indextype=}\KeywordTok{c}\NormalTok{(indextype,}\KeywordTok{rep}\NormalTok{(name[i],}\KeywordTok{nrow}\NormalTok{(data)))}
+\NormalTok{  \}}
+  \ControlFlowTok{if}\NormalTok{(iflog}\OperatorTok{==}\DecValTok{1}\NormalTok{)\{}
+\NormalTok{    indexy=}\KeywordTok{log}\NormalTok{(indexy)}
+\NormalTok{  \}}
+\NormalTok{  plotdata<-}\KeywordTok{data.frame}\NormalTok{(indexx,indexy,indextype)}
+\NormalTok{  p<-}\KeywordTok{ggplot}\NormalTok{(plotdata,}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{indexx,}\DataTypeTok{y=}\NormalTok{indexy,}\DataTypeTok{group=}\NormalTok{indextype,}\DataTypeTok{colour=}\NormalTok{indextype))}\OperatorTok{+}\KeywordTok{geom_line}\NormalTok{()}
+\NormalTok{  p}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{scaleplot}\NormalTok{(wine_train,}\KeywordTok{colnames}\NormalTok{(wine_train))}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{mayuheng_files/figure-latex/unnamed-chunk-14-1.pdf}
+
+这张图由于一个量级很大的数据压缩了大部分变量的显示效果，我们取对数后显示。
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{scaleplot}\NormalTok{(wine_train,}\KeywordTok{colnames}\NormalTok{(wine_train),}\DecValTok{1}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{mayuheng_files/figure-latex/unnamed-chunk-15-1.pdf}
+
+可以看到数据量级的差异非常巨大，这将会极大程度上使得PCA等模型受到量级大的变量的影响，使得模型不稳定。另外，许多模型的可解释性也会随着中心化与标准化有质的改变。因此，我们对数据进行中心化与标准化。
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{sigma=}\DecValTok{1}
+\NormalTok{mean=}\DecValTok{0}
+\ControlFlowTok{for}\NormalTok{ ( i }\ControlFlowTok{in} \DecValTok{2}\OperatorTok{:}\KeywordTok{ncol}\NormalTok{(wine_train))\{}
+\NormalTok{  sigma=}\KeywordTok{c}\NormalTok{(sigma,}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{var}\NormalTok{(wine_train[[i]])))}
+\NormalTok{  mean=}\KeywordTok{c}\NormalTok{(mean,}\KeywordTok{mean}\NormalTok{(wine_train[[i]]))}
+\NormalTok{\}}
+\NormalTok{wine_trainst<-}\KeywordTok{data.frame}\NormalTok{(wine_train[[}\DecValTok{1}\NormalTok{]],}\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{scale}\NormalTok{(wine_train[}\DecValTok{2}\OperatorTok{:}\DecValTok{14}\NormalTok{])))}
+\KeywordTok{colnames}\NormalTok{(wine_trainst)[}\DecValTok{1}\NormalTok{]=}\StringTok{"Type"}
+\end{Highlighting}
+\end{Shaded}
+
+注意到我们保存了均值和方差（标签列设为0和1），是因为中心化和标准化也是模型的一部分，需要对测试集使用相同的中心化、标准化方法。
+
+\subsection{总函数}
+
+本文之后的各种模型均可以通过此函数进行调用和测试。
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#输出判别结果的函数}
+\NormalTok{printdiscriminant<-}\ControlFlowTok{function}\NormalTok{(original,predicted)\{}
+\NormalTok{  count<-}\KeywordTok{matrix}\NormalTok{(}\KeywordTok{rep}\NormalTok{(}\DecValTok{0}\NormalTok{,}\DecValTok{9}\NormalTok{),}\DecValTok{3}\NormalTok{,}\DecValTok{3}\NormalTok{)}
+\NormalTok{  original<-}\KeywordTok{as.numeric}\NormalTok{(original)}
+\NormalTok{  predicted<-}\KeywordTok{as.numeric}\NormalTok{(predicted)}
+  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{length}\NormalTok{(original))\{}
+\NormalTok{    count[original[i],predicted[i]]=}\DecValTok{1}\OperatorTok{+}\NormalTok{count[original[i],predicted[i]]}
+\NormalTok{  \}}
+\NormalTok{  accuracy=}\KeywordTok{sum}\NormalTok{(}\KeywordTok{diag}\NormalTok{(count))}\OperatorTok{/}\KeywordTok{length}\NormalTok{(original)}
+\NormalTok{  count<-}\KeywordTok{as.data.frame}\NormalTok{(count)}
+  \KeywordTok{rownames}\NormalTok{(count)=}\KeywordTok{c}\NormalTok{(}\StringTok{"original1"}\NormalTok{,}\StringTok{"original2"}\NormalTok{,}\StringTok{"original3"}\NormalTok{)}
+  \KeywordTok{colnames}\NormalTok{(count)=}\KeywordTok{c}\NormalTok{(}\StringTok{"predicted1"}\NormalTok{,}\StringTok{"predicted2"}\NormalTok{,}\StringTok{"predicted3"}\NormalTok{)}
+  \KeywordTok{print}\NormalTok{(count)}
+  \KeywordTok{print}\NormalTok{(}\StringTok{"accuracy:"}\NormalTok{)}
+  \KeywordTok{print}\NormalTok{(accuracy)}
+\NormalTok{\}}
+\CommentTok{# 线性判别的判别函数，后文相应处有解释}
+\NormalTok{decidegroup<-}\ControlFlowTok{function}\NormalTok{(x)\{}
+  \ControlFlowTok{if}\NormalTok{(x[}\DecValTok{1}\NormalTok{]}\OperatorTok{<}\StringTok{ }\FloatTok{-1.891911} \OperatorTok{&&}\StringTok{ }\NormalTok{x[}\DecValTok{2}\NormalTok{]}\OperatorTok{>-}\FloatTok{0.354111}\NormalTok{)\{}
+    \KeywordTok{return}\NormalTok{(}\DecValTok{1}\NormalTok{)}
+\NormalTok{  \}}\ControlFlowTok{else} \ControlFlowTok{if}\NormalTok{(x[}\DecValTok{1}\NormalTok{]}\OperatorTok{>}\FloatTok{1.794088} \OperatorTok{&&}\StringTok{ }\NormalTok{x[}\DecValTok{2}\NormalTok{]}\OperatorTok{>-}\FloatTok{0.6310445}\NormalTok{)\{}
+    \KeywordTok{return}\NormalTok{(}\DecValTok{3}\NormalTok{)}
+\NormalTok{  \}}\ControlFlowTok{else}\NormalTok{\{}
+    \KeywordTok{return}\NormalTok{(}\DecValTok{2}\NormalTok{)}
+\NormalTok{  \}  }
+\NormalTok{\}}
+\NormalTok{Mdistance<-}\ControlFlowTok{function}\NormalTok{(x,group)\{}
+\NormalTok{  sigmainv=}\KeywordTok{solve}\NormalTok{(}\KeywordTok{var}\NormalTok{(group[}\OperatorTok{-}\DecValTok{1}\NormalTok{]))}
+\NormalTok{  mu=}\KeywordTok{sapply}\NormalTok{(group[}\OperatorTok{-}\DecValTok{1}\NormalTok{],mean)}
+\NormalTok{  result=(}\KeywordTok{as.matrix}\NormalTok{(x[}\OperatorTok{-}\DecValTok{1}\NormalTok{]}\OperatorTok{-}\NormalTok{mu))}\OperatorTok{%*%}\NormalTok{sigmainv}\OperatorTok{%*%}\KeywordTok{t}\NormalTok{(}\KeywordTok{as.matrix}\NormalTok{(x[}\OperatorTok{-}\DecValTok{1}\NormalTok{]}\OperatorTok{-}\NormalTok{mu))}
+\NormalTok{  result[}\DecValTok{1}\NormalTok{,}\DecValTok{1}\NormalTok{]}
+\NormalTok{\}}
+\NormalTok{GenearalMdistance<-}\ControlFlowTok{function}\NormalTok{(x,group)\{}
+\NormalTok{  group1<-group[group}\OperatorTok{$}\NormalTok{Type}\OperatorTok{==}\DecValTok{1}\NormalTok{,]}
+\NormalTok{  group2<-group[group}\OperatorTok{$}\NormalTok{Type}\OperatorTok{==}\DecValTok{2}\NormalTok{,]}
+\NormalTok{  group3<-group[group}\OperatorTok{$}\NormalTok{Type}\OperatorTok{==}\DecValTok{3}\NormalTok{,]}
+\NormalTok{  sigma<-}\KeywordTok{c}\NormalTok{(}\KeywordTok{log}\NormalTok{(}\KeywordTok{det}\NormalTok{(}\KeywordTok{var}\NormalTok{(group1[}\DecValTok{2}\OperatorTok{:}\DecValTok{14}\NormalTok{]))),}\KeywordTok{log}\NormalTok{(}\KeywordTok{det}\NormalTok{(}\KeywordTok{var}\NormalTok{(group2[}\DecValTok{2}\OperatorTok{:}\DecValTok{14}\NormalTok{]))),}\KeywordTok{log}\NormalTok{(}\KeywordTok{det}\NormalTok{(}\KeywordTok{var}\NormalTok{(group3[}\DecValTok{2}\OperatorTok{:}\DecValTok{14}\NormalTok{]))))}
+\NormalTok{  prior<-}\KeywordTok{c}\NormalTok{(}\OperatorTok{-}\DecValTok{2}\OperatorTok{*}\KeywordTok{log}\NormalTok{(}\KeywordTok{nrow}\NormalTok{(group1)}\OperatorTok{/}\KeywordTok{nrow}\NormalTok{(group)),}\OperatorTok{-}\DecValTok{2}\OperatorTok{*}\KeywordTok{log}\NormalTok{(}\KeywordTok{nrow}\NormalTok{(group2)}\OperatorTok{/}\KeywordTok{nrow}\NormalTok{(group)),}\OperatorTok{-}\DecValTok{2}\OperatorTok{*}\KeywordTok{log}\NormalTok{(}\KeywordTok{nrow}\NormalTok{(group3)}\OperatorTok{/}\KeywordTok{nrow}\NormalTok{(group)))}
+\NormalTok{  distance<-}\KeywordTok{c}\NormalTok{(}\KeywordTok{Mdistance}\NormalTok{(x,group1),}\KeywordTok{Mdistance}\NormalTok{(x,group2),}\KeywordTok{Mdistance}\NormalTok{(x,group3))}\OperatorTok{+}\NormalTok{sigma}\OperatorTok{+}\NormalTok{prior}
+\NormalTok{  distance}
+\NormalTok{\}}
+\CommentTok{#trainingdata为原始训练集（未标准化中心化）}
+\CommentTok{#testingdata为原始测试集}
+\CommentTok{#参数先后为是否标准化中心化，是否做pca，使用的分类器}
+\NormalTok{discriminant<-}\ControlFlowTok{function}\NormalTok{(trainingdata,testingdata,}\DataTypeTok{ifstandarize=}\DecValTok{0}\NormalTok{,}\DataTypeTok{ifpca=}\DecValTok{0}\NormalTok{,method,}\DataTypeTok{iftime=}\DecValTok{0}\NormalTok{)\{}
+\NormalTok{  a=}\KeywordTok{Sys.time}\NormalTok{()}
+  \CommentTok{#标准化}
+  \ControlFlowTok{if}\NormalTok{(ifstandarize}\OperatorTok{==}\DecValTok{1}\NormalTok{)\{}
+\NormalTok{    sigma=}\DecValTok{1}
+\NormalTok{    mean=}\DecValTok{0}
+    \ControlFlowTok{for}\NormalTok{ ( i }\ControlFlowTok{in} \DecValTok{2}\OperatorTok{:}\KeywordTok{ncol}\NormalTok{(trainingdata))\{}
+\NormalTok{      sigma=}\KeywordTok{c}\NormalTok{(sigma,}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{var}\NormalTok{(trainingdata[[i]])))}
+\NormalTok{      mean=}\KeywordTok{c}\NormalTok{(mean,}\KeywordTok{mean}\NormalTok{(trainingdata[[i]]))}
+\NormalTok{    \}}
+\NormalTok{    trainingdata<-}\KeywordTok{data.frame}\NormalTok{(trainingdata[[}\DecValTok{1}\NormalTok{]],}\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{scale}\NormalTok{(trainingdata[}\DecValTok{2}\OperatorTok{:}\DecValTok{14}\NormalTok{])))}
+    \KeywordTok{colnames}\NormalTok{(trainingdata)[}\DecValTok{1}\NormalTok{]=}\StringTok{"Type"}
+    \ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{ncol}\NormalTok{(testingdata))\{}
+\NormalTok{      testingdata[[i]]<-(testingdata[[i]]}\OperatorTok{-}\NormalTok{mean[i])}\OperatorTok{/}\NormalTok{sigma[i]}
+\NormalTok{    \}}
+\NormalTok{  \}}
+  \CommentTok{#对pca数据进行处理}
+  \ControlFlowTok{if}\NormalTok{(ifpca}\OperatorTok{==}\DecValTok{1}\NormalTok{)\{}
+\NormalTok{    trainingdata.pca<-}\KeywordTok{prcomp}\NormalTok{(trainingdata[}\DecValTok{2}\OperatorTok{:}\DecValTok{14}\NormalTok{])}
+\NormalTok{    pcadata<-trainingdata.pca}\OperatorTok{$}\NormalTok{x[,}\DecValTok{1}\OperatorTok{:}\DecValTok{3}\NormalTok{]}
+    \ControlFlowTok{if}\NormalTok{ (method}\OperatorTok{==}\StringTok{""}\NormalTok{)\{}
+      
+\NormalTok{    \}}
+\NormalTok{  \}}
+  \CommentTok{#未PCA的分类器}
+  \CommentTok{#LDA}
+  \ControlFlowTok{if}\NormalTok{(method}\OperatorTok{==}\StringTok{"LDA"}\NormalTok{)\{}
+\NormalTok{    training.lda<-}\KeywordTok{lda}\NormalTok{(Type}\OperatorTok{~}\NormalTok{.,}\DataTypeTok{data =}\NormalTok{ trainingdata)}
+\NormalTok{    testing.lda.predict<-}\KeywordTok{predict}\NormalTok{(training.lda,testingdata)}
+\NormalTok{    prediction<-}\OtherTok{NULL}
+    \ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{nrow}\NormalTok{(testingdata))\{}
+\NormalTok{      prediction<-}\KeywordTok{c}\NormalTok{(prediction,}\KeywordTok{decidegroup}\NormalTok{(}\KeywordTok{as.numeric}\NormalTok{(testing.lda.predict}\OperatorTok{$}\NormalTok{x[i,])))}
+\NormalTok{    \}}
+\NormalTok{    b=}\KeywordTok{Sys.time}\NormalTok{()}
+    \ControlFlowTok{if}\NormalTok{(iftime}\OperatorTok{==}\DecValTok{1}\NormalTok{)\{}\KeywordTok{return}\NormalTok{(b}\OperatorTok{-}\NormalTok{a)\}}
+    \KeywordTok{printdiscriminant}\NormalTok{(testingdata}\OperatorTok{$}\NormalTok{Type,prediction)}
+    
+\NormalTok{  \}}
+  \CommentTok{#QDA}
+  \ControlFlowTok{if}\NormalTok{ (method}\OperatorTok{==}\StringTok{"QDA"}\NormalTok{)\{}
+\NormalTok{    trainingdata.qda<-}\KeywordTok{qda}\NormalTok{(Type}\OperatorTok{~}\NormalTok{., trainingdata)}
+\NormalTok{    testing.qda.predict<-}\KeywordTok{predict}\NormalTok{(trainingdata.qda,testingdata)}
+\NormalTok{    prediction<-}\OtherTok{NULL}
+    \ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{nrow}\NormalTok{(testingdata))\{}
+\NormalTok{      prediction<-}\KeywordTok{c}\NormalTok{(prediction,}\KeywordTok{which.max}\NormalTok{(testing.qda.predict}\OperatorTok{$}\NormalTok{posterior[i,]))}
+\NormalTok{    \}}
+\NormalTok{    b=}\KeywordTok{Sys.time}\NormalTok{()}
+    \ControlFlowTok{if}\NormalTok{(iftime}\OperatorTok{==}\DecValTok{1}\NormalTok{)\{}\KeywordTok{return}\NormalTok{(b}\OperatorTok{-}\NormalTok{a)\}}
+    \KeywordTok{printdiscriminant}\NormalTok{(testingdata}\OperatorTok{$}\NormalTok{Type,prediction)}
+\NormalTok{  \}}
+  \ControlFlowTok{if}\NormalTok{ (method}\OperatorTok{==}\StringTok{"Bayes"}\NormalTok{)\{}
+\NormalTok{    prediction<-}\OtherTok{NULL}
+    \ControlFlowTok{for}\NormalTok{(i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\KeywordTok{nrow}\NormalTok{(testingdata))\{}
+\NormalTok{      prediction<-}\KeywordTok{c}\NormalTok{(prediction,}\KeywordTok{which.min}\NormalTok{(}\KeywordTok{GenearalMdistance}\NormalTok{(testingdata[i,],trainingdata)))}
+\NormalTok{    \}}
+    \ControlFlowTok{if}\NormalTok{(iftime}\OperatorTok{==}\DecValTok{1}\NormalTok{)\{}\KeywordTok{return}\NormalTok{(b}\OperatorTok{-}\NormalTok{a)\}}
+    \KeywordTok{printdiscriminant}\NormalTok{(testingdata}\OperatorTok{$}\NormalTok{Type,prediction)}
+\NormalTok{  \}}
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\hypertarget{lda}{%
+\subsection{LDA}\label{lda}}
+
+虽然已经知道协方差矩阵差异巨大，我们仍先对数据进行最简单的线性分类，观察效果。
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{wine.lda<-}\KeywordTok{lda}\NormalTok{(Type}\OperatorTok{~}\NormalTok{.,}\DataTypeTok{data =}\NormalTok{ wine_trainst)}
+\NormalTok{wine.lda}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Call:
+## lda(Type ~ ., data = wine_trainst)
+## 
+## Prior probabilities of groups:
+##     1     2     3 
+## 0.288 0.416 0.296 
+## 
+## Group means:
+##      Alcohol  Malicacid        Ash Alcalinityofash  Magnesium Totalphenols
+## 1  0.9513522 -0.3844047  0.3952006      -0.7544043  0.4856743   0.92279870
+## 2 -0.8456172 -0.4216372 -0.4496240       0.1512992 -0.3274456   0.01026427
+## 3  0.2627950  0.9665865  0.2473845       0.5213784 -0.0123542  -0.91228366
+##   Flavanoids Nonflavanoidphenols Proanthocyanins Colorintensity        Hue
+## 1   1.029451          -0.6483947      0.60016690      0.1823106  0.5209402
+## 2   0.106815          -0.0364180      0.05062981     -0.8069864  0.4458240
+## 3  -1.151746           0.6820526     -0.65510159      0.9567598 -1.1334242
+##   OD280.OD315diluted    Proline
+## 1          0.8493700  1.3054953
+## 2          0.2472942 -0.6627073
+## 3         -1.1739627 -0.3388392
+## 
+## Coefficients of linear discriminants:
+##                              LD1         LD2
+## Alcohol             -0.457551741  0.61937853
+## Malicacid            0.193502181  0.42898538
+## Ash                 -0.296538011  0.68495147
+## Alcalinityofash      0.650905792 -0.45137195
+## Magnesium            0.002294136  0.01455561
+## Totalphenols         0.461461282  0.10125227
+## Flavanoids          -1.528245485 -0.78747198
+## Nonflavanoidphenols -0.142580778 -0.19247680
+## Proanthocyanins     -0.010094004 -0.24015255
+## Colorintensity       0.790527716  0.72381722
+## Hue                 -0.188922096 -0.33810234
+## OD280.OD315diluted  -0.840740629  0.30528216
+## Proline             -0.979543424  0.85107307
+## 
+## Proportion of trace:
+##    LD1    LD2 
+## 0.6951 0.3049
+\end{verbatim}
+
+可以看到所展示的先验、每组数据针对每个变量的平均值、系数和区分度贡献。我们下面来确定判别准则。
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{wine.lda.predict<-}\KeywordTok{predict}\NormalTok{(wine.lda,wine_trainst)}
+\NormalTok{groupmean<-}\ControlFlowTok{function}\NormalTok{(wine_trainst)\{}
+\NormalTok{  wine.lda<-}\KeywordTok{lda}\NormalTok{(Type}\OperatorTok{~}\NormalTok{.,}\DataTypeTok{data =}\NormalTok{ wine_trainst)}
+\NormalTok{  wine.lda.predict<-}\KeywordTok{predict}\NormalTok{(wine.lda,wine_trainst)}
+\NormalTok{  mean1=}\OtherTok{NULL}
+\NormalTok{  mean2=}\OtherTok{NULL}
+  \ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{1}\OperatorTok{:}\DecValTok{3}\NormalTok{)\{}
+\NormalTok{  mean1=}\KeywordTok{c}\NormalTok{(mean1,}\KeywordTok{mean}\NormalTok{(wine.lda.predict}\OperatorTok{$}\NormalTok{x[wine_trainst}\OperatorTok{$}\NormalTok{Type}\OperatorTok{==}\NormalTok{i,}\DecValTok{1}\NormalTok{]))}
+\NormalTok{  mean2=}\KeywordTok{c}\NormalTok{(mean2,}\KeywordTok{mean}\NormalTok{(wine.lda.predict}\OperatorTok{$}\NormalTok{x[wine_trainst}\OperatorTok{$}\NormalTok{Type}\OperatorTok{==}\NormalTok{i,}\DecValTok{2}\NormalTok{]))}
+\NormalTok{  \}}
+\NormalTok{  result<-}\KeywordTok{data.frame}\NormalTok{(mean1,mean2)}
+  \KeywordTok{rownames}\NormalTok{(result)=}\KeywordTok{c}\NormalTok{(}\StringTok{"1"}\NormalTok{,}\StringTok{"2"}\NormalTok{,}\StringTok{"3"}\NormalTok{)}
+\NormalTok{  result}
+\NormalTok{\}}
+\KeywordTok{groupmean}\NormalTok{(wine_trainst)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##        mean1     mean2
+## 1 -4.1250122  1.632261
+## 2  0.1016345 -2.397249
+## 3  3.8706877  1.780960
+\end{verbatim}
+
+为了更好的展示数据在两条投影直线上的分布，我们进行柱状图可视化。
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ldahist}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ wine.lda.predict}\OperatorTok{$}\NormalTok{x[,}\DecValTok{1}\NormalTok{], }\DataTypeTok{g=}\NormalTok{wine_trainst}\OperatorTok{$}\NormalTok{Type)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{mayuheng_files/figure-latex/unnamed-chunk-20-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ldahist}\NormalTok{(}\DataTypeTok{data =}\NormalTok{ wine.lda.predict}\OperatorTok{$}\NormalTok{x[,}\DecValTok{2}\NormalTok{], }\DataTypeTok{g=}\NormalTok{wine_trainst}\OperatorTok{$}\NormalTok{Type)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{mayuheng_files/figure-latex/unnamed-chunk-20-2.pdf}
+
+即便表面上数据在第一个维度已经可以很好的使用两个临界值进行判别，但是区分度显示第二个维度还是提供了33\%的区分度。所以我们仍旧要使用第二个维度的信息。此处我们采取最简单的欧式距离判别,即使用均值的平均值作为临界值。
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{decidegroup<-}\ControlFlowTok{function}\NormalTok{(x)\{}
+  \ControlFlowTok{if}\NormalTok{(x[}\DecValTok{1}\NormalTok{]}\OperatorTok{<}\StringTok{ }\FloatTok{-1.891911} \OperatorTok{&&}\StringTok{ }\NormalTok{x[}\DecValTok{2}\NormalTok{]}\OperatorTok{>-}\FloatTok{0.354111}\NormalTok{)\{}
+    \KeywordTok{return}\NormalTok{(}\DecValTok{1}\NormalTok{)}
+\NormalTok{  \}}\ControlFlowTok{else} \ControlFlowTok{if}\NormalTok{(x[}\DecValTok{1}\NormalTok{]}\OperatorTok{>}\FloatTok{1.794088} \OperatorTok{&&}\NormalTok{x[}\DecValTok{2}\NormalTok{]}\OperatorTok{>-}\FloatTok{0.6310445}\NormalTok{)\{}
+    \KeywordTok{return}\NormalTok{(}\DecValTok{3}\NormalTok{)}
+\NormalTok{  \}}\ControlFlowTok{else}\NormalTok{\{}
+    \KeywordTok{return}\NormalTok{(}\DecValTok{2}\NormalTok{)}
+\NormalTok{  \}  }
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+我们对判别准则进行测试。此处调用的函数为开始建模时写好的总函数。
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{discriminant}\NormalTok{(wine_train,wine_test,}\DataTypeTok{ifstandarize=}\DecValTok{1}\NormalTok{,}\DataTypeTok{method=}\StringTok{"LDA"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##           predicted1 predicted2 predicted3
+## original1         20          3          0
+## original2          0         19          0
+## original3          0          0         11
+## [1] "accuracy:"
+## [1] 0.9433962
+\end{verbatim}
+
+可以看到判别结果相当不错，只有三个类型1被判断为了类型2，其他的均正确，正确率达到94.3\%。我们此时再查看一下只采用一个维度信息的判别标准的效果。
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{decidegroup<-}\ControlFlowTok{function}\NormalTok{(x)\{}
+  \ControlFlowTok{if}\NormalTok{(x[}\DecValTok{1}\NormalTok{]}\OperatorTok{<}\StringTok{ }\FloatTok{-1.891911}\NormalTok{)\{}
+    \KeywordTok{return}\NormalTok{(}\DecValTok{1}\NormalTok{)}
+\NormalTok{  \}}\ControlFlowTok{else} \ControlFlowTok{if}\NormalTok{(x[}\DecValTok{1}\NormalTok{]}\OperatorTok{>}\FloatTok{1.794088}\NormalTok{)\{}
+    \KeywordTok{return}\NormalTok{(}\DecValTok{3}\NormalTok{)}
+\NormalTok{  \}}\ControlFlowTok{else}\NormalTok{\{}
+    \KeywordTok{return}\NormalTok{(}\DecValTok{2}\NormalTok{)}
+\NormalTok{  \}  }
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{discriminant}\NormalTok{(wine_train,wine_test,}\DataTypeTok{ifstandarize=}\DecValTok{1}\NormalTok{,}\DataTypeTok{method=}\StringTok{"LDA"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##           predicted1 predicted2 predicted3
+## original1         21          2          0
+## original2          2         16          1
+## original3          0          0         11
+## [1] "accuracy:"
+## [1] 0.9056604
+\end{verbatim}
+
+果然，效果比原先下降了许多，第二个维度的信息是至关重要的。
+
+\hypertarget{qda}{%
+\subsection{QDA}\label{qda}}
+
+考虑到原先每组数据方差不同，我们使用QDA进行后验概率计算，并且采取后验概率最大判别。
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{discriminant}\NormalTok{(wine_train,wine_test,}\DataTypeTok{ifstandarize=}\DecValTok{1}\NormalTok{,}\DataTypeTok{method=}\StringTok{"QDA"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##           predicted1 predicted2 predicted3
+## original1         20          3          0
+## original2          0         19          0
+## original3          0          0         11
+## [1] "accuracy:"
+## [1] 0.9433962
+\end{verbatim}
+
+正确率和线性判别差不多，但当我们多选择几个随机种子（或采取交叉验证），发现正确率大约为99\%左右，显著的好于线性判别。
+
+\hypertarget{bayes}{%
+\subsection{Bayes}\label{bayes}}
+
+考虑到方差和先验均不一样，但是数据却具有正态性，我们使用平均损失最小的贝叶斯分类器（此时等价于广义平方距离判别）。
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{discriminant}\NormalTok{(wine_train,wine_test,}\DataTypeTok{ifstandarize=}\DecValTok{1}\NormalTok{,}\DataTypeTok{method=}\StringTok{"Bayes"}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##           predicted1 predicted2 predicted3
+## original1         20          3          0
+## original2          0         19          0
+## original3          0          0         11
+## [1] "accuracy:"
+## [1] 0.9433962
+\end{verbatim}
+
+\hypertarget{pca}{%
+\subsection{PCA}\label{pca}}
+
+我们尝试使用PCA去除噪声，并使用不同的分类器完成任务。
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{wine.train.pca<-}\KeywordTok{prcomp}\NormalTok{(wine_trainst[}\DecValTok{2}\OperatorTok{:}\DecValTok{14}\NormalTok{])}
+\KeywordTok{summary}\NormalTok{(wine.train.pca)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Importance of components:
+##                           PC1    PC2    PC3     PC4     PC5     PC6
+## Standard deviation     2.1609 1.5877 1.2314 0.96247 0.93431 0.79784
+## Proportion of Variance 0.3592 0.1939 0.1166 0.07126 0.06715 0.04897
+## Cumulative Proportion  0.3592 0.5531 0.6698 0.74101 0.80816 0.85713
+##                            PC7     PC8     PC9    PC10    PC11    PC12
+## Standard deviation     0.71131 0.58548 0.54523 0.50701 0.43431 0.40846
+## Proportion of Variance 0.03892 0.02637 0.02287 0.01977 0.01451 0.01283
+## Cumulative Proportion  0.89605 0.92242 0.94528 0.96506 0.97957 0.99240
+##                          PC13
+## Standard deviation     0.3143
+## Proportion of Variance 0.0076
+## Cumulative Proportion  1.0000
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{screeplot}\NormalTok{(wine.train.pca)}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{mayuheng_files/figure-latex/unnamed-chunk-28-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{accu<-}\DecValTok{0}
+\ControlFlowTok{for}\NormalTok{ (i }\ControlFlowTok{in} \DecValTok{2}\OperatorTok{:}\DecValTok{14}\NormalTok{)\{}
+\NormalTok{  accu<-}\KeywordTok{c}\NormalTok{(accu,wine.train.pca}\OperatorTok{$}\NormalTok{sdev[i}\DecValTok{-1}\NormalTok{]}\OperatorTok{^}\DecValTok{2}\OperatorTok{+}\NormalTok{accu[i}\DecValTok{-1}\NormalTok{])}
+\NormalTok{\}}
+\NormalTok{accu[}\DecValTok{2}\OperatorTok{:}\DecValTok{14}\NormalTok{]}\OperatorTok{/}\DecValTok{13}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##  [1] 0.3592064 0.5531206 0.6697557 0.7410129 0.8081619 0.8571273 0.8960476
+##  [8] 0.9224161 0.9452831 0.9650566 0.9795664 0.9924000 1.0000000
+\end{verbatim}
+
+从图中我们可以得知，前三个主成分已经提供了绝大多数信息，占总比例的68\%。而后十个只提供了32\%。所以我们可以合理的将数据维度降至三维。出于绘图的方便，我们先将前两维进行可视化。
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{ggplot}\NormalTok{(wine_trainst,}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x=}\NormalTok{wine.train.pca}\OperatorTok{$}\NormalTok{x[,}\DecValTok{1}\NormalTok{],}\DataTypeTok{y=}\NormalTok{wine.train.pca}\OperatorTok{$}\NormalTok{x[,}\DecValTok{2}\NormalTok{],,}\DataTypeTok{group=}\NormalTok{Type,}\DataTypeTok{color=}\KeywordTok{as.factor}\NormalTok{(wine_trainst}\OperatorTok{$}\NormalTok{Type)))}\OperatorTok{+}\KeywordTok{geom_point}\NormalTok{()}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{mayuheng_files/figure-latex/unnamed-chunk-29-1.pdf}
+
+可以看出，即使仅仅考虑前两维的信息，这已经是一个相当明显的可以完成的分类任务。下面我们使用不同的分类器在三个维度上进行训练,并在测试集上测试效果。
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{#trainingdata为原始训练集（未标准化中心化）}
+\CommentTok{#testingdata为原始测试集}
+\CommentTok{#参数先后为是否标准化中心化，是否做pca，使用的分类器}
+\NormalTok{discriminant<-}\ControlFlowTok{function}\NormalTok{(trainingdata,testingdata,}\DataTypeTok{ifstandarize=}\DecValTok{0}\NormalTok{,}\DataTypeTok{ifpca=}\DecValTok{0}\NormalTok{,method)\{}
+  \CommentTok{#标准化}
+  \ControlFlowTok{if}\NormalTok{(ifstandarize}\OperatorTok{==}\DecValTok{1}\NormalTok{)\{}
+\NormalTok{    sigma=}\DecValTok{1}
+\NormalTok{    mean=}\DecValTok{0}
+    \ControlFlowTok{for}\NormalTok{ ( i }\ControlFlowTok{in} \DecValTok{2}\OperatorTok{:}\KeywordTok{ncol}\NormalTok{(wine_train))\{}
+\NormalTok{      sigma=}\KeywordTok{c}\NormalTok{(sigma,}\KeywordTok{sqrt}\NormalTok{(}\KeywordTok{var}\NormalTok{(wine_train[[i]])))}
+\NormalTok{      mean=}\KeywordTok{c}\NormalTok{(mean,}\KeywordTok{mean}\NormalTok{(wine_train[[i]]))}
+\NormalTok{    \}}
+\NormalTok{    wine_train<-}\KeywordTok{data.frame}\NormalTok{(wine_train[[}\DecValTok{1}\NormalTok{]],}\KeywordTok{as.data.frame}\NormalTok{(}\KeywordTok{scale}\NormalTok{(wine_train[}\DecValTok{2}\OperatorTok{:}\DecValTok{14}\NormalTok{])))}
+    \KeywordTok{colnames}\NormalTok{(wine_train)[}\DecValTok{1}\NormalTok{]=}\StringTok{"Type"}
+\NormalTok{  \}}
+  \CommentTok{#对pca数据进行处理}
+  \ControlFlowTok{if}\NormalTok{(ifpca}\OperatorTok{==}\DecValTok{1}\NormalTok{)\{}
+\NormalTok{    wine.train.pca<-}\KeywordTok{prcomp}\NormalTok{(wine_train[}\DecValTok{2}\OperatorTok{:}\DecValTok{14}\NormalTok{])}
+\NormalTok{    pcadata<-wine.train.pca}\OperatorTok{$}\NormalTok{x[,}\DecValTok{1}\OperatorTok{:}\DecValTok{3}\NormalTok{]}
+    \ControlFlowTok{if}\NormalTok{ (method}\OperatorTok{==}\StringTok{""}\NormalTok{)\{}
+      
+\NormalTok{    \}}
+\NormalTok{  \}}
+  \ControlFlowTok{if}\NormalTok{(ifpca}\OperatorTok{==}\DecValTok{0}\NormalTok{)\{}
+    
+\NormalTok{  \}}
+  
+\NormalTok{\}}
+\end{Highlighting}
+\end{Shaded}
+
+
+\end{document}
