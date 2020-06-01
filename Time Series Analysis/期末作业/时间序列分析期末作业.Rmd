@@ -1,0 +1,477 @@
+---
+title:  北京PM2.5数据分析
+author:
+- 匡亚明学院 统计学 马宇恒 171240510
+date: "2020/5/28"
+output: html_document
+---
+
+
+报告为20年春季学期南京大学数学系时间序列分析课程作业。数据集来源于UCI机器学习数据库，贡献者为Liang, X., Zou, T., Guo, B., Li, S., Zhang, H., Zhang, S., Huang, H. and Chen, S. X.。本文分如下几个部分进行。后三个部分中包含了所要求的模型判别、参数估计、模型诊断的步骤。
+
+- 数据预处理与探索
+- 直接处理
+- STL模型
+- 回归
+
+
+在文章最后，总结了本文得出的各种结论以及对政府的一些建议。
+
+
+```{r, message=FALSE, warning=FALSE, paged.print=FALSE}
+library(VIM)
+library(ggplot2)
+library(mice)
+library(Hmisc)
+library(tseries)
+library(forecast)
+library(fUnitRoots)
+library(patchwork)
+set.seed(123)
+```
+
+
+### 数据预处理与探索
+
+```{r}
+data<-read.csv("PRSA_data_2010.1.1-2014.12.31.csv")
+```
+
+从数据库来源处我们可以查看各列的含义。
+
+Attribute Information:
+
+- No: row number 
+- year: year of data in this row 
+- month: month of data in this row 
+- day: day of data in this row 
+- hour: hour of data in this row 
+- pm2.5: PM2.5 concentration (ug/m^3) 
+- DEWP: Dew Point (ƒ) 
+- TEMP: Temperature (ƒ) 
+- PRES: Pressure (hPa) 
+- cbwd: Combined wind direction 
+- Iws: Cumulated wind speed (m/s) 
+- Is: Cumulated hours of snow 
+- Ir: Cumulated hours of rain 
+
+对各个时间维度上的数据进行可视化。
+
+```{r message=FALSE, warning=FALSE}
+# 总体趋势
+# 取log以优化显示
+ggplot(data,aes(x=as.factor(year),y=log(pm2.5)))+geom_violin(aes(fill=year))+ggplot(data,aes(x=as.factor(month),y=log(pm2.5)))+geom_violin(aes(fill=month))+ggplot(data,aes(x=as.factor(day),y=log(pm2.5)))+geom_violin(aes(fill=day))+ggplot(data,aes(x=as.factor(hour),y=log(pm2.5)))+geom_violin(aes(fill=hour))
+```
+
+我们来查看缺失值。
+
+```{r}
+aggr(data,prop=TRUE)
+```
+
+```{r}
+na<-is.na(data$pm2.5)
+# 计算连续缺失值序列占缺失值比例
+sum(abs(c(na,0)-c(0,na)))/2/sum(na)
+```
+
+
+
+
+
+只有PM2.5的测量值有缺失，那么我们需要对缺失值进行处理。由于本数据集很显然的含有周期信息，直接删除会丢失许多信息。由于数据量较大、持续时间相对缺失值较长，我们选择基于统计学的填充方法比如均值填充。而在此之前，我们对数据进行各种方式的拆分。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+# 调用数据的函数
+getdata<-function(by,data,naomit=1){
+  #按顺序取每年的平均值
+  if(by=="year"){
+    year<-unique(data$year)
+    pm2.5<-NULL
+    for (i in year){
+       pm2.5<-c(pm2.5,mean(na.omit(data$pm2.5[data$year==i])))
+    }
+    result<-data.frame(year,pm2.5)
+  }
+  #按顺序取每月的平均值
+  if(by=="month"){
+    year<-NULL
+    month<-NULL
+    pm2.5<-NULL
+    for (i in unique(data$year)){
+      for (j in unique(data$month)){
+          year<-c(year,i)
+          month<-c(month,j)
+          pm2.5<-c(pm2.5,mean(na.omit(data$pm2.5[as.logical(c(data$year==i)*c(data$month==j))])))
+      }
+    }
+        result<-data.frame(year,month,pm2.5)
+  }
+  #按顺序取每天的平均值
+  if (by=="day"){
+    year<-NULL
+    month<-NULL
+    day<-NULL
+    pm2.5<-NULL
+    for (i in unique(data$year)){
+      for (j in unique(data$month)){
+        for (k in unique(data$day)){
+          if (sum(c(data$year==i)*c(data$month==j)*c(data$day==k))==0){break}
+          year<-c(year,i)
+          month<-c(month,j)
+          day<-c(day,k)
+          pm2.5<-c(pm2.5,mean(na.omit(data$pm2.5[as.logical(c(data$year==i)*c(data$month==j)*c(data$day==k))])))
+        }
+      }
+    }
+        result<-data.frame(year,month,day,pm2.5)
+  }
+  result$no<-seq(nrow(result))
+  return(result)
+}
+```
+
+
+```{r}
+datayear<-getdata("year",data)
+datamonth<-getdata("month",data)
+dataday<-getdata("day",data)
+meanyear<-NULL
+meanmonth<-NULL
+meanday<-NULL
+# 按照不同时间跨度分类
+for (i in unique(data$year)){
+  meanyear<-c(meanyear,mean(na.omit(data$pm2.5[data$year==i])))
+}
+for (i in unique(data$month)){
+  meanmonth<-c(meanmonth,mean(na.omit(data$pm2.5[data$month==i])))
+}
+for (i in unique(data$day)){
+  meanday<-c(meanday,mean(na.omit(data$pm2.5[data$day==i])))
+}
+
+dataday[1:30,]
+```
+
+```{r}
+filleddataday<-impute(dataday$pm2.5,mean)
+```
+
+经过上述几种数据的整理方式，我们可以观察到缺失数据大多发生在不相连的一两天内。考察我们的时间序列是否为平稳序列。
+
+```{r,warning=FALSE}
+unitrootTest(filleddataday)
+adf.test(filleddataday)
+```
+
+但有这样的结果不一定因为其本身平稳，可能是数据量过大的缘故。故我们选择2010年的数据来考察。
+
+```{r,warning=FALSE}
+unitrootTest(filleddataday[1:365])
+adf.test(filleddataday[1:365])
+```
+
+的确，我们可以把它当作平稳序列处理。
+
+
+### 直接处理
+
+```{r}
+par(mfrow=c(1,2))
+acf(filleddataday[1:365])
+pacf(filleddataday[1:365])
+```
+
+
+从模型中我们看到ACF在6阶后不显著为0，PACF在4阶后不显著为0。这里原本想要使用eacf来确认，但TSA包在5月初变成无法下载了，在重装了RStudio后便无法使用。为了防止过拟合，我们手动计算AIC值
+
+
+
+```{r,warning=FALSE}
+## 这里原本想要使用eacf来确认，但TSA包在5月初变成无法下载了，在重装了RStudio后便无法使用。为了防止过拟合，我们手动计算AIC值。
+min=10000
+for (i in 1:7) {
+  for (j in 1:7){
+    tmodel<-arima(filleddataday[1:365],order = c(i,0,j),transform.pars = TRUE,method = "ML")
+    if (min>tmodel$aic){
+    min=tmodel$aic
+    print(min)
+    print(c(i,j))
+    }
+  }
+}
+
+
+
+```
+
+可以看到ARIMA(4,0,4)的AIC值为最小（(7,0,2)被故意舍去因为并没有提升很多AIC且阶数不合理），因此我们采用这个模型。
+
+
+```{r}
+tmodel<-arima(filleddataday[1:365],order = c(4,0,4))
+forecast <- forecast(tmodel, h = 1, level = c(99.5))
+plotdata<-data.frame(c(forecast$fitted,forecast$x),c(seq(365),seq(365)),c(rep(1,365),rep(2,365)))
+colnames(plotdata)<-c("value","no","group")
+plot_lst <- list()
+b=90
+for (i in 1:4){
+  index<-c(1,91,181,271)
+  a<-index[i]
+plot_lst[[i]]<-ggplot(plotdata[c(a:(a+b),(365+a):(a+b+365)),],aes(x=no,y=value,group=group,colour=group))+geom_line()
+  }
+plot_lst[[1]]+ plot_lst[[2]]+plot_lst[[3]]+plot_lst[[4]]
+```
+
+
+可以看到，拟合的效果相当不错，但是总的来说预测的序列波动性比原序列小很多，这就提示我们在数据集的气象信息中可能有我们能够利用的东西。这个提示我们稍后处理，现在先来考察残差项。
+
+```{r}
+plot(forecast$residuals)
+```
+
+肉眼观察来看，残差图具有一定的正态性。
+```{r}
+Box.test(forecast$residuals,type="Ljung-Box")
+```
+
+的确，这个p值真的相当完美。
+```{r}
+tsdiag(tmodel)
+```
+
+残差序列完全没有自相关性，结果很好。接下来我们考虑不同年度数据之间的区别。一方面，气象条件对pm2.5对影响是巨大的。事实上，风力能够很大程度上决定pm2.5的含量。所以pm2.5数据应该以气候变化周期，即一年，有周期规律。同时，每年冬季的供暖也非常影响空气质量。但是同时，2010-2014五年间，我国对pm2.5的重视程度快速上升，颁布了很多关键性政策。所以不同年度之间的数据可能存在区别。让我们逐步分析。
+
+
+### STL模型
+
+
+首先来看2011年的数据。
+
+```{r}
+tsfilleddataday<-ts(filleddataday[366:730],frequency = 30)
+de<-decompose(tsfilleddataday,type = "add")
+plot(de)
+```
+
+可以看到分解出了每个月的周期数据和趋势项。我们来看看一个周期内的数据。
+
+```{r}
+acf(de$seasonal[1:30])
+pacf(de$seasonal[1:30])
+monthmodel<-arima(de$seasonal[1:30],order = c(2,0,1))
+monthforecast<-forecast(monthmodel, h = 1, level = c(99.5))
+plotdata<-data.frame(c(monthforecast$fitted,monthforecast$x),c(seq(30),seq(30)),c(rep(1,30),rep(2,30)))
+colnames(plotdata)<-c("value","no","group")
+ggplot(plotdata,aes(x=no,y=value,group=group,colour=group))+geom_line()
+```
+
+在一个月内可以很好的用ARIMA(2,0,1)来模拟。同时，我们也看到在decompose的结果中，trend项中，冬季的值显著高于其他时候，这也解释了供暖对pm2.5的影响。同时残差项也被很好的剔除出来。
+
+```{r}
+Box.test(de$random,type="Ljung-Box")
+```
+
+让我们再来对5年的数据做STL建模。
+
+```{r}
+tsfilleddataday<-ts(filleddataday,frequency = 365)
+de<-decompose(tsfilleddataday)
+plot(de)
+```
+
+在这个模型中可以读出的最明显的信息便是2012年初通过的新《环境空气质量标准》使得pm2.5浓度骤然下降，然而在严控了一段时间之后便再次回升。
+
+### 回归
+
+我们考虑数据集中气象数据的信息。先做一个总体拟合。
+
+```{r}
+reg<-lm(pm2.5~cbwd+DEWP+TEMP+PRES+Is+Ir+Iws,data)
+summary(reg)
+```
+
+
+发现拟合效果尚可，R方为0.26，可以解释一部分信息。所以我们尝试将气象数据中的信息从时间序列数据中剔除。
+
+```{r}
+summary(step(reg))
+```
+
+
+发现并没有删除任何变量。所以我们将pm2.5对气象数据进行多元拟合，从原始数据中减去拟合结果，然后在进行时间序列回归。
+
+
+
+```{r}
+regdata<-predict(data,object = reg)
+data2<-data
+## 减去气象信息
+data2$pm2.5<-filleddataday-regdata
+dataday<-getdata("day",data2)
+tsfilleddataday<-ts(dataday$pm2.5,frequency = 365)
+de<-decompose(tsfilleddataday,type = "add")
+plot(de)
+```
+
+```{r}
+Box.test(de$random)
+```
+
+
+
+从模型解释上来说，对气象数据拟合后再进行成分拆分代表着去除自然因素对pm2.5的影响，只考虑序列自身的相关性和人为因素的影响。而decompose的结果也的确如此：周期性体现出明显的冬季高夏季低，这是冬季供暖的影响；趋势性体现在2012-13年度较低，体现了相关政策的作用。
+
+接下来，我们分别用四种方法（直接进行平稳序列建模，STL建模，回归后平稳建模和回归后STL建模）进行预测，以2010、2011年的数据为例，预测2011年12月的pm2.5的日均值。
+
+
+```{r}
+test<-function(trainingdata,testdata,method){
+  
+  ## 平稳
+  
+  if (method=="stationary"){
+    # 准备数据
+    trainingdata<-getdata("day",trainingdata)
+    testdata<-getdata("day",testdata)
+    trainingdata$pm2.5<-impute(trainingdata$pm2.5,mean)
+    # 拟合模型
+    tmodel<-arima(trainingdata$pm2.5,order = c(4,0,4))
+    # 预测
+    forecast <- forecast(tmodel,h=31, level = c(99.5))
+    # 可视化
+    plotdata<-data.frame(c(forecast$upper,forecast$lower,forecast$mean,testdata$pm2.5),c(seq(31),seq(31),seq(31),seq(31)),c(rep(1,31),rep(2,31),rep(3,31),rep(4,31)))
+    colnames(plotdata)<-c("value","no","group")
+    p<-ggplot(plotdata,aes(x=no,y=value,group=group,colour=as.factor(group)))+geom_line()
+    print(p)
+    print("MSE:")
+    print(sum((forecast$mean-testdata$pm2.5)*(forecast$mean-testdata$pm2.5)))
+  }
+  
+  ## STL
+  
+  else if (method=="STL"){
+    # 准备数据
+    trainingdata<-getdata("day",trainingdata)
+    testdata<-getdata("day",testdata)
+    trainingdata$pm2.5<-impute(trainingdata$pm2.5,mean)
+    tsfilleddataday<-ts(trainingdata$pm2.5,frequency = 30)
+    # 拟合模型
+    de<-decompose(tsfilleddataday,type = "add")
+    # 可视化
+    plotdata<-data.frame(c(de$seasonal[1:31]+100,testdata$pm2.5),c(seq(31),seq(31)),c(rep(1,31),rep(2,31)))
+    colnames(plotdata)<-c("value","no","group")
+    p<-ggplot(plotdata,aes(x=no,y=value,group=group,colour=as.factor(group)))+geom_line()
+    print(p)
+    print("MSE:")
+    print(sum((c(de$seasonal[1:31]+100-testdata$pm2.5)*(de$seasonal[1:31]+100-testdata$pm2.5))))
+  }
+  
+  ## 气象+平稳
+  
+  else if (method=="regstationary"){
+    # 回归
+    reg<-lm(pm2.5~cbwd+DEWP+TEMP+PRES+Is+Ir+Iws,trainingdata)
+    # 准备数据
+    trainingdata$pm2.5<-trainingdata$pm2.5-predict(reg,trainingdata)
+    trainingdata$pm2.5<-impute(trainingdata$pm2.5,mean)
+    trainingdata<-getdata("day",trainingdata)
+    # 储存拟合数据
+    testdata1<-testdata
+    testdata1$pm2.5<-predict(reg,testdata)
+    testdata1<-getdata("day",testdata1)
+    testdata<-getdata("day",testdata)
+    # 拟合
+    tmodel<-arima(trainingdata$pm2.5,order = c(4,0,4))
+    # 预测
+    forecast <- forecast(tmodel,h=31, level = c(99.5))
+    # 可视化
+    plotdata<-data.frame(c(forecast$upper+testdata1$pm2.5,forecast$lower+testdata1$pm2.5,forecast$mean+testdata1$pm2.5,testdata$pm2.5),c(seq(31),seq(31),seq(31),seq(31)),c(rep(1,31),rep(2,31),rep(3,31),rep(4,31)))
+    colnames(plotdata)<-c("value","no","group")
+    p<-ggplot(plotdata,aes(x=no,y=value,group=group,colour=as.factor(group)))+geom_line()
+    print(p)
+    print("MSE:")
+    print(sum((forecast$mean+testdata1$pm2.5-testdata$pm2.5)*(forecast$mean+testdata1$pm2.5-testdata$pm2.5)))
+  }
+    
+  ## 气象+STL
+  
+  else if (method=="regSTL"){
+    # 回归
+    reg<-lm(pm2.5~cbwd+DEWP+TEMP+PRES+Is+Ir+Iws,trainingdata)
+    # 准备数据
+    trainingdata$pm2.5<-trainingdata$pm2.5-predict(reg,trainingdata)
+    trainingdata$pm2.5<-impute(trainingdata$pm2.5,mean)
+    trainingdata<-getdata("day",trainingdata)
+    # 储存回归结果
+    testdata1<-testdata
+    testdata1$pm2.5<-predict(reg,testdata)
+    testdata1<-getdata("day",testdata1)
+    testdata<-getdata("day",testdata)
+    tsfilleddataday<-ts(trainingdata$pm2.5,frequency = 30)
+    # 预测
+    de<-decompose(tsfilleddataday,type = "add")
+    plotdata<-data.frame(c(de$seasonal[1:31]+testdata1$pm2.5,testdata$pm2.5),c(seq(31),seq(31)),c(rep(1,31),rep(2,31)))
+    colnames(plotdata)<-c("value","no","group")
+    # 可视化
+    p<-ggplot(plotdata,aes(x=no,y=value,group=group,colour=as.factor(group)))+geom_line()
+    print(p)
+    print("MSE:")
+    print(sum((c(de$seasonal[1:31]+testdata1$pm2.5-testdata$pm2.5)*(de$seasonal[1:31]+testdata1$pm2.5-testdata$pm2.5))))
+  }
+}
+```
+
+```{r}
+test(data[1:16776,],data[16777:17520,],"stationary")
+test(data[1:16776,],data[16777:17520,],"STL")
+test(data[1:16776,],data[16777:17520,],"regstationary")
+test(data[1:16776,],data[16777:17520,],"regSTL")
+```
+
+针对这四组结果做点评：
+
+- 给出的预测完全基于均值，变动不大，没有太大的意义；置信区间范围很广；MSE值相对较大。得出该模型虽然简单但只适合预测长期趋势，不够精确。
+- 预测同样基本基于均值，和平稳时间序列模型相同
+- 可以看出预测在向实际值靠拢，证明气象数据里的信息非常又用；图中的置信区间仍然过宽，没有太大意义；MSE是最小的。总体来说，回归-平稳时间序列模型表现最好。
+- 和回归-平稳时间序列模型差不多。
+
+注意到加入气象数据信息后表现大幅提升，而采用ARIMA和STL模型则不会产生太大的区别，由此我们也有结论：PM2.5含量预测任务中主要可预测的部分是气象条件和自相关的约束条件，周期和趋势需要额外的领域知识或补充信息。
+
+
+### 信息解读
+
+- 缺失值往往集中在一两天内
+- 气象条件对pm2.5影响很大
+- 冬季供暖对pm2.5影响很大
+- 2012年新《环境空气质量标准》出台后，环境污染得到有效缓解，但不到一年以后便大幅反弹
+- 回归-ARIMA模型能够做出最好的预测
+
+
+
+### 政策建议
+
+- 在趋势分解图中我们看到，政策出台的一段时间后往往因为执行变得宽松而效果消失
+- 选择周期性把控，在风力强、风向有利（东北、西北风）的时候选择放宽排放标准，为企业减负；在其他时间仍然执行强标准
+- 利用回归-ARIMA模型预测pm2.5
+
+### 参考文献
+
+[1] Liang, X., Zou, T., Guo, B., Li, S., Zhang, H., Zhang, S., Huang, H. and Chen, S. X. (2015). Assessing Beijing's PM2.5 pollution: severity, weather impact, APEC and winter heating. Proceedings of the Royal Society A, 471, 20150257.
+[2] Cryer, Jonathan D., Chan, Kung-Sik, Time Series Analysis With Applications in R. 2008. Springer-Verlag New York.
