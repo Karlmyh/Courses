@@ -27,3 +27,6 @@
     + Smoothing Splines
     + Generalized Additive Models
     + K-Nearest Neighbors and Local Regression
+- Tree
+    + Regression Tree
+    + Decision Tree

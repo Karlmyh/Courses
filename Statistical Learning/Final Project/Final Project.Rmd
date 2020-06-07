@@ -1,5 +1,5 @@
 ---
-title: "多元统计分析课程论文"
+title: "统计机器学习课程论文"
 author:
 - 匡亚明学院 统计学 马宇恒 171240510
 output:
@@ -7,7 +7,7 @@ output:
   pdf_document: default
 ---
 ### 引言
-报告采用多元统计分析课程中所包含的多种分类器对红酒数据进行分类。该数据集是1991年由Institute of Pharmaceutical and Food Analysis and Technologies, Genoa, Italy的M. Forina等人提供，是机器学习领域经典的分类任务数据集。数据集记录了来自意大利同一地区、由相同工艺和三个品种葡萄制作的红酒的十三种化学成分含量，所有的指标均为数值变量。
+报告采用统计机器学习课程中所包含的多种分类器对红酒数据进行分类。该数据集是1991年由Institute of Pharmaceutical and Food Analysis and Technologies, Genoa, Italy的M. Forina等人提供，是机器学习领域经典的分类任务数据集。数据集记录了来自意大利同一地区、由相同工艺和三个品种葡萄制作的红酒的十三种化学成分含量，所有的指标均为数值变量。
 
 ### 数据集整理与探索
 ```{r,results='hide',warning=FALSE,message=FALSE,echo=FALSE}
@@ -17,6 +17,7 @@ library(mvnormtest)
 library(cramer)
 library(ggplot2)
 library(MASS)
+library(kknn)
 ```
 
 ```{r}
@@ -126,7 +127,7 @@ multi.difmu.test<-function(data,k,h){
 multi.difmu.test(wine,1,2)
 ```
 
-第二、三组数据与第一组结果类似。虽然不愿意承认，但是我们的三类数据都没有显著的区别于彼此。不过我们并不能以此接受原假设。事实上，当我们使用不同的分类器进行分类时，取得的效果相当理想。这也是众多论文采用本数据集进行算法初步检验的原因。课本中提到，当协方差矩阵差异巨大时，这种两样本检验并不准确，这更加坚定了我们继续下去的决心。
+第二、三组数据与第一组结果类似。虽然不愿意承认，但是我们的三类数据都没有显著的区别于彼此。不过我们并不能以此接受原假设。事实上，当我们使用不同的分类器进行分类时，取得的效果相当理想。这也是众多论文采用本数据集进行算法初步检验的原因。当协方差矩阵差异巨大时，这种两样本检验并不准确，这更加坚定了我们继续下去的决心。
 
 
 除了总体的区分度外，我们还要查看因变量之间的相关性。
@@ -306,6 +307,12 @@ discriminant<-function(trainingdata,testingdata,ifstandarize=0,ifpca=0,method,if
     }
     result<-printdiscriminant(testingdata$Type,prediction,ifprint)
   }
+  # KNN
+  if (method=="KNN"){
+    testingdata.kknn<-train.kknn(Type~.,trainingdata)
+    prediction<-round(predict(testingdata.kknn,testingdata))
+    result<-printdiscriminant(testingdata$Type,prediction,ifprint)
+  }
   result
 }
 ```
@@ -322,8 +329,8 @@ crossvalidation<-function(wholeset=wine,ifstandarize=1,ifpca=0,method,kfold,ifti
   }
   indexs<-append(indexs,list(index[(round(nrow(wholeset)/kfold)*(kfold-1)+1):length(index)]))
   accuracy<-NULL
-  for (i in 1:10){
-    temp=discriminant(wine[setdiff(index,indexs[[i]]),],wine[indexs[[i]],],ifstandarize=ifstandarize,ifpca=ifpca,method=method,ifprint = 0)
+  for (i in 1:kfold){
+    temp<-discriminant(wine[setdiff(index,indexs[[i]]),],wine[indexs[[i]],],ifstandarize=ifstandarize,ifpca=ifpca,method=method,ifprint = 0)
     accuracy<-c(accuracy,temp)
   }
   if(iftime==1){
@@ -431,6 +438,16 @@ crossvalidation(wholeset = wine,kfold = 10,method = "Bayes")
 
 贝叶斯分类的准确率和二次判别相同，原因是贝叶斯仅仅比二次判别多考虑了先验分布，而这个数据集的三类数据数量十分接近，所以并没有显著差异。
 
+### KNN 
+
+我们考虑K近邻方法。
+
+```{r}
+crossvalidation(wholeset = wine,kfold = 10,method = "KNN",ifstandarize = 1)
+```
+
+检查结果之后发现在某些验证集选择下，局部分类效果很差。
+
 ### PCA
 
 变量之间很强的相关性提示我们数据的内在维度可能远小于实际维度，并且可能存在噪声。我们尝试使用PCA去除噪声，并使用不同的分类器完成任务。
@@ -467,13 +484,19 @@ crossvalidation(wholeset = wine,kfold = 10,method = "QDA",iftime=1)
 crossvalidation(wholeset = wine,kfold = 10,method = "QDA",ifpca=1,iftime = 1)
 crossvalidation(wholeset = wine,kfold = 10,method = "Bayes",iftime=1)
 crossvalidation(wholeset = wine,kfold = 10,method = "Bayes",ifpca=1,iftime=1)
+crossvalidation(wholeset = wine,kfold = 10,method = "KNN",iftime=1)
+crossvalidation(wholeset = wine,kfold = 10,method = "KNN",ifpca=1,iftime=1)
 ```
 
-可以看到，尽管准确率有了小幅下降，但随着数据维度增大而运算量快速增大的贝叶斯分类器速度被PCA大幅提升。
+可以看到，尽管准确率有了小幅下降，但随着数据维度增大而运算量快速增大的贝叶斯分类器速度被PCA大幅提升。而KNN优于其特点，更多的是消耗储存空间，PCA没有意义。
+
+
+
+
 
 ### 结论
 
-我们使用了三种分类器对红酒数据进行分类。准确率最高可以达到99%以上。
+我们使用了四种分类器对红酒数据进行分类。准确率最高可以达到99%以上。
 
 
 ### 参考文献
