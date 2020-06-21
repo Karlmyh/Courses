@@ -1,0 +1,253 @@
+\documentclass[10pt, oneside]{article} 
+
+\usepackage{amsmath, amsthm, amssymb,amsfonts,appendix}
+\usepackage{bbm, bm,booktabs}
+\usepackage{calrsfs,color,cite,caption}
+\usepackage{esint,enumitem}
+\usepackage{fancyhdr,fontspec,float}
+\usepackage{graphicx,graphics,geometry}
+\usepackage{indentfirst}
+\usepackage{listings}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+	language=Python,
+	aboveskip=3mm,
+	belowskip=3mm,
+	showstringspaces=false,
+	columns=flexible,
+	basicstyle={\small\ttfamily},
+	numbers=none,
+	numberstyle=\tiny\color{gray},
+	keywordstyle=\color{blue},
+	commentstyle=\color{dkgreen},
+	stringstyle=\color{mauve},
+	breaklines=true,
+	breakatwhitespace=true,
+	tabsize=3
+}
+\usepackage[labelfont=bf]{caption}
+\usepackage{mathptmx}
+\usepackage{stmaryrd,siunitx,subfigure,setspace}
+\usepackage[stable]{footmisc}
+\usepackage{tikz,textcomp}
+\usetikzlibrary{fit,positioning,arrows,automata}
+\usepackage{verbatim}
+\usepackage{wasysym}
+\usepackage{wrapfig}
+
+
+
+\geometry{tmargin=.75in, bmargin=.75in, lmargin=.75in, rmargin = .75in}  
+
+
+
+\newtheorem{thm}{Theorem}
+\newtheorem{defn}{Definition}
+\newtheorem{conv}{Convention}
+\newtheorem{rem}{Remark}
+\newtheorem{lem}{Lemma}
+\newtheorem{cor}{Corollary}
+
+
+\title{
+Pattern Recognition HW 2
+}
+\author{171240510 Yuheng Ma\\[0.3cm]{Math Major, Kuang Yaming Honors School}}
+\date{Spring 2020}
+
+\begin{document}
+
+\maketitle
+
+\vspace{.25in}
+\section{03 Framework 2}
+\begin{enumerate}
+	\item There are K $\mu$'s that represent K points which best describe the centers of K groups. A $x_j$ is only assigned to one group, and the "variance" can be shown by $\sum_{j=1}^{M}\gamma_{ij}||x_j-\mu_i||^2$. Total "in-group variance" can be shown by $\sum_{i=1}^{K}\sum_{j=1}^{M}\gamma_{ij}||x_j-\mu_i||^2$. Less variance shows better in-group connection and thus we tends to minimize this.
+	\item When $\mu$ fixed, $\min \sum_{i=1}^{K}\sum_{j=1}^{M}\gamma_{ij}||x_j-\mu_i||^2\leq \sum_{j=1}^{M}\min\sum_{i=1}^{K}\gamma_{ij}||x_j-\mu_i||^2=\sum_{j=1}^{M}\min_{i}||x_j-\mu_i||^2$, this is a attained when 
+	$$
+	\gamma_{i j}=\left\{\begin{array}{ll}
+	1 & i=\arg \min || x_{j}-\mu_{i} \| \\
+	0 & i=\text { others }
+	\end{array}\right.
+	$$
+	. When $\gamma$ fixed, 
+	$$
+	\begin{aligned}
+	&\frac{\partial \sum_{i=1}^{K}\sum_{j=1}^{M}\gamma_{ij}||x_j-\mu_i||^2}{\partial \mu_i}\\
+	=&\sum_{j=1}^{M} \gamma_{ij} 2(x_j-\mu_i)\\
+	=&2\sum_{x_j\in G_i} x_j-\mu_i\\
+	\end{aligned}
+$$
+when set to 0, $\mu_i$ is set to $\bar{x}_i$, the mean of x's in group i. 
+\item The state space of clustering E is a finite state space and |E|= $K^M$. Let the state after ith iteration be $s_i$, then there will be a convergent subsequence $\{s_{n_k}\}$, which is just $s_{n_1}=s_{n_2}=\cdots s_{n_k}=\cdots$. However, each iteration will reduce the loss function $\sum_{i=1}^{K}\sum_{j=1}^{M}\gamma_{ij}||x_j-\mu_i||^2$, for the reason that step i and ii both find the sufficient statistics for $\gamma$ and $\mu$. Thus, $Loss(s_{n_i})<Loss(s_{n_i+k})<Loss(s_{n_{j+1}})$, a contradiction. Thus s does not change after reaching $s_{n_1}$.
+\end{enumerate}
+
+\section{04 Error 2}
+\begin{enumerate}
+	\item As an otimization problem, this is equivalent to finding $ \tilde{\beta}$ $$\sum_{i=1}^{n}||x_i^T\tilde{\beta} -y_i||^2=\min_{\mathbb{R}^d}\sum_{i=1}^{n}||x_i^T\beta-y_i||^2$$
+	\item As an otimization problem, this is equivalent to finding $ \tilde{\beta}$ $$||X\tilde{\beta} -y||_2^2=\min_{\mathbb{R}^d}||X\beta-y||_2^2$$
+	\item Take derivative and let it be zero, we have $$
+	\tilde{\beta}=(X^TX)^{-1}X^Ty
+	$$
+	\item No. $X^TX$ and $XX^T$ have same group of eigenvalue except some zeros. If d>n, $X^TX$ have 0 as its eigenvalue and thus not invertible. 
+	\item  It gives weight to norm of $\beta$, which usually helps to to solve an ill-posed problem or to prevent overfitting. Here, it gives a unique solution despite the relationship of n and d. 
+	\item As an otimization problem, this is equivalent to finding $ \tilde{\beta}$ $$||X\tilde{\beta} -y||_2^2+\lambda \tilde{\beta}^T\tilde{\beta}=\min_{\mathbb{R}^d}||X\beta-y||_2^2 +\lambda \beta^T\beta$$. We have the derivative
+	$$
+	2X^TX\beta-2X^Ty+2\lambda \beta \Rightarrow \tilde{\beta}=(X^TX+\lambda I)^{-1}X^T y
+	$$
+	\item In 6, we notice that $X^TX+\lambda I$ is positive since $X^TX$ is semi-positive.
+	\item $\lambda$ =0 then the result is the same with ordinary linear regression. $\lambda =\infty$ then we have result $\beta=0$.
+	\item No, since $\beta^T\beta$ is always positive, cost function will always be less if $\lambda=0$. 
+	
+\end{enumerate}
+\section{04 Error 5}
+ \begin{table}
+		\centering
+		\label{TAB1}
+		\caption{Calculation of AUC-PR and AP}
+		\begin{tabular}{c c c|c c c c}
+			index  & label  & score & precision  & recall & AUC-PR & AP \\ \hline
+			0 &  &  & 1 & 0 & - &  -\\ 
+			1 & 1 & 1.0 & 1 & 0.2 & 0.2 & 0.2 \\ 
+			2 & 2 & 0.9 & 0.5 & 0.2 & 0 & 0 \\ 
+			3 & 1 & 0.8 & 0.66 & 0.4 & 0.116 & 0.132 \\ 
+			4 & 1 & 0.7 & 0.75 & 0.6 & 0.141 & 0.15 \\ 
+			5 & 2 & 0.6 & 0.6 & 0.6 & 0 & 0 \\ 
+			6 & 1 & 0.5 & 0.66 & 0.8 & 0.126 & 0.132 \\ 
+			7 & 2 & 0.4 & 0.5714 & 0.8 & 0 & 0 \\ 
+			8 & 2 & 0.3 & 0.5 & 0.8 & 0 & 0 \\ 
+			9 & 1 & 0.2 & 0.5556 & 1 & 0.10556 & 0.11112 \\ 
+			10 & 2 & 0.1 & 0.5 & 1 & 0 & 0 \\ \hline
+			&  &  &  &  & 0.6905 & 0.7277 \\ 
+		\end{tabular}
+	\end{table}
+\begin{enumerate}
+	\item As in Table 1.
+	\item As in Table 1. They are acceptably close. Generally AP is greater than AUC-PR since precision is generally decreasing. 
+	\item AUC-PR: 0.6794, AP: 0.7166.
+	\item \begin{lstlisting}
+	import numpy as np
+	def calculate(label, score,target):
+		if target=="AUC-PR":
+			n=len(label)
+			AUCPR=np.zeros(n)
+			precision=np.zeros(n+1)
+			recall=np.zeros(n+1)
+			precision[0]=1
+			recall[0]=0
+			for i in range(1,n+1):
+				precision[i]=np.sum(label[0:i])/i
+				recall[i]=np.sum(label[0:i])/np.sum(label)
+				AUCPR[i-1]=(recall[i]-recall[i-1])*(precision[i]+precision[i-1])/2
+			return np.sum(AUCPR)
+		elif target=="AP":
+			n=len(label)
+			AP=np.zeros(n)
+			precision=np.zeros(n+1)
+			recall=np.zeros(n+1)
+			precision[0]=1
+			recall[0]=0
+			for i in range(1,n+1):
+				precision[i]=np.sum(label[0:i])/i
+				recall[i]=np.sum(label[0:i])/np.sum(label)
+				AP[i-1]=(recall[i]-recall[i-1])*precision[i]
+			return np.sum(AP)
+		else:
+			return 0
+	\end{lstlisting}
+\end{enumerate}
+\section{04 Error 6}
+\begin{enumerate}
+	\item $$\begin{aligned}
+	& E\left[\left(y-f(x ; D)^{2}\right]\right.\\
+	=&\left.E [](F(x)-f(x ; D)+\varepsilon)^{2}\right] \\
+	=& E\left[\left(F(x)-E_{D} f(x ; D))^{2}\right]+E\left[\left(E_{D} f(x ; D)-f(x ; D)\right)^{2}\right]+\sigma^{2}\right.
+	\end{aligned}$$
+	\item $$
+	\begin{aligned}
+	&E[f]\\
+	=&E[\frac{1}{k}\sum_{i=1}^{k}y_{nn(i)}]\\
+	=&E[\frac{1}{k}\sum_{i=1}^{k}F(x_{nn(i)})+\epsilon]\\
+	=&\frac{1}{k}\sum_{i=1}^{k}F(x_{nn(i)})\\
+	\end{aligned}
+	$$
+	\item $$
+	\begin{aligned}
+	&E[\left(F(x)-E_{D} f(x ; D))^{2}\right]+E\left[\left(E_{D} f(x ; D)-f(x ; D)\right)^{2}\right]+\sigma^{2}\\
+	=&E\left[(F(x)-\frac{1}{k}\sum_{i=1}^{k}F(x_{nn(i)}))^2\right]+E\left[\left(\frac{1}{k}\sum_{i=1}^{k}F(x_{nn(i)})-\frac{1}{k}\sum_{i=1}^ky_{nn(i)}\right)^{2}\right]+\sigma^{2}\\
+	=&E\left[(F(x)-\frac{1}{k}\sum_{i=1}^{k}F(x_{nn(i)}))^2\right]+E[(\sum_{i=1}^k\epsilon_i)^2]+\sigma^{2}\\
+	=&E\left[(F(x)-\frac{1}{k}\sum_{i=1}^{k}F(x_{nn(i)}))^2\right]+k\sigma^2+\sigma^{2}\\
+	\end{aligned}
+	$$
+	\item $k\sigma^2$. It grows linearly.
+	\item $E\left[(F(x)-\frac{1}{k}\sum_{i=1}^{k}F(x_{nn(i)}))^2\right]$. When k=n, this is $Var[F(x)]$. Also, as k grows, the squared bias term grows from 0 to $Var[F(x)]$. 
+\end{enumerate}
+\section{05 PCA 5}
+\begin{enumerate}
+	\item Let $\{e_1,e_2,\cdots,e_n\}$ be n unit eigenvector for G. 
+	$$
+	\begin{aligned}
+		||Gx||&=||G\cdot(x_1e_1+\cdots+x_ne_n)||\\
+		&=||\lambda_1e_1x_1+\cdots+\lambda_ne_nx_n||\\
+		&=|x_1\lambda_1|^2+\cdots+|x_n\lambda_n|\\
+		&=|x_1|^2+\cdots+|x_n|^2\\
+		&=||x||\\
+	\end{aligned}
+	$$
+	$G^T$ is also orthogonal so the result holds. 
+	\item $$
+	\begin{aligned}
+	||G^TXG||_F&=\sqrt{tr(G^TXG(G^TXG)^T)}\\
+	&=\sqrt{tr(G^TXGG^TX^TG)}\\
+	&=\sqrt{tr(G^TXX^TG)}\\
+	&=\sqrt{tr(G^{-1}XX^TG)}\\
+	&=\sqrt{tr(XX^T)}\\
+	&=||X||_F
+	\end{aligned}
+	$$
+	\item This generally accumulates X to diagonal entries, which is just approximate diagonalization. Eigenvalues appear naturally. 
+	\item If $X_{ii}=a$, $X_{jj}=b$, $X_{ij}=X_{ji}=c$, consider
+	$$
+	P \equiv P(i, j, \theta)=\left[\begin{array}{ccccccccc}
+	1 & & & & & & & & \\
+	& \ddots & & & & & & & \\
+	& & 1 & & & & & &  \\
+	& & & \cos \theta & \cdots & \sin \theta & & & \\
+	& & & \vdots & \ddots & \vdots & & & \\
+	& & &- \sin \theta & \cdots & \cos \theta && &  \\
+	& & & & & & 1 & &  \\
+	& & & & & & & \ddots & \\
+	& & & & & & & & 1
+	\end{array}\right]
+	$$
+	where $\theta=\frac{1}{2}\arctan \frac{2c}{b-a}$. Denote P's column vector as $P_i$, 
+	$$
+	\begin{aligned}
+	(P^TXP)_{ij}&=P_i X P_j\\
+	&=\cos \theta sin \theta X_{ii} -\cos \theta sin \theta X_{jj} +\cos^2 \theta X_{ij} -sin^2\theta X_{ji}\\
+	&=\cos \theta sin \theta a -\cos \theta sin \theta b +(\cos^2 \theta -sin^2\theta )c\\
+	&=\frac{a-b}{2}sin2\theta+ cos 2 \theta c\\
+	&=\frac{a-b}{2}\frac{2c}{b-a}cos2\theta+ cos 2 \theta c\\
+	&=0\\
+	\end{aligned}
+	$$
+	The result holds for $	(P^TXP)_{ji}$.
+	\item Since $P^TXP$ does not change F norm, it suffice to prove one iteration will not decrease  $\sum_{i=1}^{n}X_{ii}^2$. Only $X_{ii}$ and $X_{jj}$ will change after operation by $P(i,j,\theta)$. Thus the increment will be 
+	$$
+	\begin{aligned}
+&	(\cos^2 \theta x_{ii} + sin^2 \theta x_{jj} +\cos\theta\sin\theta( x_{ij}+x_{ji}))^2+(\cos^2 \theta x_{jj} + sin^2 \theta x_{ii} -\cos\theta\sin\theta( x_{ij}+x_{ji}))^2-x_{ii}^2-x_{jj}^2\\
+=&\left(\cos ^{4} \theta+\sin ^{4} \theta\right) x_{ii}^{2}+\left(\cos ^{4} \theta+\sin ^{4} \theta\right) x_{jj}^{2}+\left(4 \cos ^{3} \theta \sin \theta-4 \cos \theta \sin ^{3} \theta\right)\left(x_{i i} - x_{j j}\right) x_{i j}\\
+&+8 \cdot cos^2 \theta sin^{2} \theta x_{i j}^{2}+4 \sin ^{2} \theta \cos ^{2} \theta x_{i i} x_{j j}\\
+=&8cos^2\theta sin^2\theta x_{ij}^2+2sin2\theta cos2\theta (x_{ii}-x_{jj})x_{ij}-(x_{ii}-x_{jj})^22cos^2\theta sin^2\theta\\
+=&8cos^2\theta sin^2\theta x_{ij}^2+4c^2cos^22\theta -2c^2cos^22\theta\\
+=&2c^2\geq0
+	\end{aligned}	
+	$$
+	Thus proved.
+	\item From increment computed in 5, off(X) decrease strictly before off-diagonal entries become all 0, and off(X) converges to 0. After some iterations, off$(X)<\epsilon$. Then $(P^TXP)_{ij}= \cos^2 \theta x_{ii} + sin^2 \theta x_{jj} +\cos\theta\sin\theta( x_{ij}+x_{ji})=(1+O(\epsilon))x_{ii}+O(\epsilon)x_{jj} +2c\cdot O(\epsilon)$. $|(P^TXP)_{ij}-X_{ij}|=O(\epsilon)$, thus we can make sure that X converges.  
+	
+\end{enumerate}
+\end{document}

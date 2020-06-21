@@ -1,0 +1,175 @@
+\documentclass[10pt, oneside]{article} 
+
+\usepackage{amsmath, amsthm, amssymb,amsfonts,appendix}
+\usepackage{bbm, bm,booktabs}
+\usepackage{calrsfs,color,cite,caption}
+\usepackage{esint,enumitem}
+\usepackage{fancyhdr,fontspec,float}
+\usepackage{graphicx,graphics,geometry}
+\usepackage{indentfirst}
+\usepackage{listings}
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+\lstset{frame=tb,
+	language=Python,
+	aboveskip=3mm,
+	belowskip=3mm,
+	showstringspaces=false,
+	columns=flexible,
+	basicstyle={\small\ttfamily},
+	numbers=none,
+	numberstyle=\tiny\color{gray},
+	keywordstyle=\color{blue},
+	commentstyle=\color{dkgreen},
+	stringstyle=\color{mauve},
+	breaklines=true,
+	breakatwhitespace=true,
+	tabsize=3
+}
+\usepackage[labelfont=bf]{caption}
+\usepackage{mathptmx}
+\usepackage{stmaryrd,siunitx,subfigure,setspace}
+\usepackage[stable]{footmisc}
+\usepackage{tikz,textcomp}
+\usetikzlibrary{fit,positioning,arrows,automata}
+\usepackage{verbatim}
+\usepackage{wasysym}
+\usepackage{wrapfig}
+
+
+
+\geometry{tmargin=.75in, bmargin=.75in, lmargin=.75in, rmargin = .75in}  
+
+
+
+\newtheorem{thm}{Theorem}
+\newtheorem{defn}{Definition}
+\newtheorem{conv}{Convention}
+\newtheorem{rem}{Remark}
+\newtheorem{lem}{Lemma}
+\newtheorem{cor}{Corollary}
+
+
+\title{
+Pattern Recognition HW 3
+}
+\author{171240510 Yuheng Ma\\[0.3cm]{Math Major, Kuang Yaming Honors School}}
+\date{Spring 2020}
+
+\begin{document}
+
+\maketitle
+
+\vspace{.25in}
+\section{06 FLD 3}
+\begin{enumerate}
+	\item $A^{T}\left(A^{-1}\right)^{T}=\left(A^{-1} A\right)^{T}=E$, thus $inv(X)'=inv(X')$, $AA'$ and $A'A$ have same eigenvalues, thus $(inv(X)'inv(X))$ is similar to $((inv(X)inv(X)^T)=inv(X)inv(X')=(X'X)^{-1}$. Thus $\kappa_{2}(X)= \frac{\sigma_1}{\sigma_n}$.
+	\item By $A x=b$, $ A\Delta x=\Delta b$ and $\|b\|=\|A x\| \leqslant\|A\|\|x\|$, $||\Delta x||=||A^{-1}\Delta b||\leqslant\| \mathrm{A}^{-1}\|\| \Delta \mathrm{b} \|$. $\frac{||\Delta x||}{||x||}\leqslant||A^{-1}||||A||\frac{||\Delta b||}{||b||}$. A large condition number will loss its control of error of x. 
+	\item If A is orthogonal matrix, $||A||=||A^{-1}||=1$. Thus $\kappa(A)=1$. 
+\end{enumerate}
+\section{06 FLD 6}
+\begin{enumerate}
+	\item .
+	\item .
+	\item PCA is unsupervised learning while FLD is supervised, which provides different type of discriminate method. This also results in difference in dims of eigenspace. Eigenface generally has a larger dim.
+	\item Around 300.
+\end{enumerate}
+\section{07 SVM 1}
+\begin{enumerate}
+	\item .
+	\item (a) 66.925$\%$ (b) Scale should be [0,1]. (c) 95.675$\%$ (d)87.7$\%$.(e) C=1048.0,$\gamma=5.04$. 
+	\item The first data set a1a is inbalenced with 395 positive class and 1210 negative class. It did not significantly improve something.
+\end{enumerate}
+\section{08 Probabilistic 2}
+\begin{enumerate}
+	\item $\int_{x_{m}}^{\infty} \frac{c}{x^{a+1}} d x=1$ thus $\frac{c}{\alpha} x_{m}^{-\alpha}=1 \Rightarrow c=\alpha x_{m}^{\alpha}$.
+	\item $$
+	\begin{array}{l}
+	l\left(x_{1}, \ldots x_{n}\right) \\
+	=\prod_{i=1}^n \frac{\alpha x_{m}^{\alpha}}{x_{i}^{\alpha+1}} \\
+	=(\alpha+1)\sum \log x_{i}+\alpha \cdot n \ln \alpha+n \alpha \log x_{m}
+	\end{array}
+	$$
+	By taking partial derivative, $\hat{x_m}=max(x_1,\cdots,x_n), \hat{\alpha}=\frac{1}{n\log\prod\frac{x_i}{\hat{x_m}}}$
+	\item $$
+	\begin{aligned}
+	&P(\theta | x) \propto p(x | \theta) P\left(\theta | x_{m}, k\right)\\
+	&=\left\{\begin{array}{cl}
+	\left(\frac{1}{\theta}\right)^{n} & \theta \geqslant \max \left(x_{i}\right) \\
+	0 & \theta<\max \left(x_{i}\right)
+	\end{array}\left\{\begin{array}{ll}
+	\frac{k x_{m}^{k}}{\theta^{k+1}} & \theta \geqslant x_{m} \\
+	0 & \theta<x_{m}
+	\end{array}\right.\right.\\
+	&\propto \left\{\begin{array}{ll}
+	\frac{1}{\theta^{n+k+1}} & \theta \geqslant \min \left(\max (x_i), x_{m}\right) \\
+	0 & \text { others }
+	\end{array}\right.
+	\end{aligned}
+	$$
+	Thus $\alpha'=n+k+1$ and $x_m=\min \left(\max (x_i), x_{m}\right)$.
+\end{enumerate}
+\section{09 Metric 6}
+\begin{enumerate}
+	\item .
+	\item Around 85$\%$.
+	\item Around 65$\%$.
+	\item Every feature is push to 1 thus harder to discriminate. 
+\end{enumerate}
+\section{10 IT 2}\begin{enumerate}
+	\item d(x,y)=d(y,x), d(x,x)$\geq$0 and $d(x,x)=0\Leftrightarrow x=\theta$, d(x+y)+d(y+z)$\geq$d(x+z).
+	\item No. 
+	\begin{equation}
+		KL(A||A)=0
+	\end{equation}
+	\begin{equation}
+		KL(A||B)=\frac{1}{2}\log \frac{2}{3}
+	\end{equation}
+	\begin{equation}
+		KL(B||A)=\frac{1}{4}\log \frac{31}{8}
+	\end{equation}
+	\begin{equation}
+		KL(B||C)=\frac{1}{4}\log \frac{2274}{2058}
+	\end{equation}
+	\begin{equation}
+	KL(A||C)=\frac{1}{2}\log \frac{32}{7}
+	\end{equation}
+	(1) rejects the second, (2)(3) reject the first, (2)(4)(5) reject the last. 
+	\item \begin{lstlisting}
+		import numpy as np
+		def KL(x,y):
+		return x[1]*(np.log(x[1])-np.log(y[1]))+x[0]*(np.log(x[0])-np.log(y[0]))
+		A=np.array([0.5,0.5])
+		B=np.array([0.25,0.75])
+		C=np.array([0.125,0.875])
+		print(KL(A,A),KL(A,B)-KL(B,A),KL(A,B)+KL(B,C)-KL(A,C))
+		
+		out:0.0 0.013029000284753484 -0.2118244650968008
+	\end{lstlisting}
+\end{enumerate}
+\section{10 IT 6}
+$$
+h(X)=-\int_{0}^{\infty} \lambda e^{-\lambda x}(\ln \lambda+-\lambda x) d x
+$$
+And 
+$$
+\begin{aligned}
+0 \leq& KL(p \| q) \\
+=&\int p(x) \ln \frac{p(x)}{q(x)} \\
+=&\int p(x) \ln p(x)-\int p(x) \ln q(x)
+\end{aligned}
+$$
+and $$
+\begin{aligned}
+&\int p(x)\log q(x)\\
+=&\int p(x)(\log \lambda-\lambda x) dx\\
+=&\log \lambda -1
+\end{aligned}
+$$
+Thus proved.
+
+
+
+\end{document}
