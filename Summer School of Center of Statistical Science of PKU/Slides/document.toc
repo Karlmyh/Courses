@@ -1,0 +1,7 @@
+\beamer@sectionintoc {1}{Background introduction}{3}{0}{1}
+\beamer@subsectionintoc {1}{1}{Background introduction}{4}{0}{1}
+\beamer@subsectionintoc {1}{2}{Random Matrix}{5}{0}{1}
+\beamer@sectionintoc {2}{Algorithm}{9}{0}{2}
+\beamer@sectionintoc {3}{Consistency}{16}{0}{3}
+\beamer@sectionintoc {4}{Simulations}{23}{0}{4}
+\beamer@sectionintoc {5}{Conclusion}{32}{0}{5}
